@@ -768,9 +768,21 @@
     if(!options.length){ wrap.style.display='none'; return; }
     wrap.style.display='block';
     selectedPriority = options[0]; // default to first
-    wrap.innerHTML = '<span class="priority-label">What matters most to you?</span><div class="priority-chips">'
-      + options.map((o,i)=>`<button class="priority-chip${i===0?' selected':''}" onclick="selectPriority(this,'${o.replace(/'/g,"\\'")}' )">${o}</button>`).join('')
-      + '</div>';
+    // Use data-value attribute — no inline string escaping needed (Safari-safe)
+    wrap.innerHTML = '<span class="priority-label">What matters most to you?</span><div class="priority-chips" id="priority-chips-inner"></div>';
+    const inner = document.getElementById('priority-chips-inner');
+    options.forEach((o, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'priority-chip' + (i === 0 ? ' selected' : '');
+      btn.textContent = o;
+      btn.dataset.value = o;
+      btn.addEventListener('click', function(){
+        document.querySelectorAll('.priority-chip').forEach(c => c.classList.remove('selected'));
+        this.classList.add('selected');
+        selectedPriority = this.dataset.value;
+      });
+      inner.appendChild(btn);
+    });
   }
 
   function selectPriority(btn, value){
