@@ -583,7 +583,7 @@
             if(picks.length > 0){
               let html = '<span class="section-results-label">' + (infoOnlyTopics.has(currentTopic)?'Your breakdown':'Top picks right now') + '</span>';
               picks.forEach((p, i) => {
-                const url = getLink(p.name, '');
+                const url = getLink(p.name, p.url||'');
                 const top = i===0;
                 if(!url){
                   html += '<div class="card" style="margin-bottom:0.875rem;border-left:3px solid var(--wit-border);border-radius:0 var(--border-radius-lg) var(--border-radius-lg) 0;padding-left:1.1rem;">'
@@ -719,6 +719,7 @@
     // Never show buttons for info-only topics
     if(infoOnlyTopics.has(currentTopic)) return '';
     if(!providerName) return aiUrl||'';
+    aiUrl = aiUrl || '';
     const key = providerName.toLowerCase()
       .replace(/\s*(isa|cash isa|lifetime isa|lisa|credit card|savings|account|saver|bank|card|loan|pension|invest|stocks|shares)\s*/g,' ')
       .trim();
@@ -739,6 +740,7 @@
   }
 
   function renderResults(data){
+    console.log('renderResults data:', JSON.stringify(data));
     let html=buildWhatToLookFor(data.what_to_look_for);
     html+=`<span class="section-results-label">${infoOnlyTopics.has(currentTopic)?"Your breakdown":"Top picks right now"}</span>`;
     data.top_picks.forEach((p,i)=>{
