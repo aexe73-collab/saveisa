@@ -148,6 +148,10 @@
     .priority-chip{padding:0.4rem 0.9rem;border-radius:100px;border:1.5px solid var(--border-mid);background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400;color:var(--text-secondary);cursor:pointer;transition:all 0.15s;}
     .priority-chip:hover{border-color:var(--green-light);color:var(--text-primary);}
     .priority-chip.selected{background:var(--submit-bg);color:var(--submit-color);border-color:transparent;font-weight:500;}
+
+    @keyframes dots{0%,20%{content:'.';}40%{content:'..';}60%,100%{content:'...'}}
+    .loading-dots::after{content:'...';animation:dots 1.2s steps(1,end) infinite;}
+    .loading-dots{font-size:inherit;color:inherit;}
     .memory-bar{display:none;align-items:center;justify-content:space-between;padding:0.6rem 1.25rem;background:var(--expand-bg);border-bottom:1px solid var(--border);font-size:13px;color:var(--text-secondary);}
     .memory-bar.visible{display:flex;}
     .memory-bar-text{display:flex;align-items:center;gap:0.5rem;}
@@ -484,35 +488,138 @@
       let streamedText = '';
       const statusEl = document.getElementById('stream-status');
 
+      // Track which sections have already been rendered
+      const rendered = {wit:false, wtlf:false, picks:false};
+
+      // Simple string extractor — no complex regex, Safari-safe
+      function extractField(text, key){
+        const search = '"' + key + '":';
+        const start = text.indexOf(search);
+        if(start === -1) return null;
+        const valStart = text.indexOf('"', start + search.length);
+        if(valStart === -1) return null;
+        let val = '', i = valStart + 1;
+        while(i < text.length){
+          if(text[i] === '\\') { val += text[i+1] || ''; i += 2; }
+          else if(text[i] === '"') break;
+          else { val += text[i]; i++; }
+        }
+        if(i >= text.length) return null; // string not closed yet
+        return val;
+      }
+
+      function extractItems(text, outerKey){
+        const arrStart = text.indexOf('"' + outerKey + '"');
+        if(arrStart === -1) return [];
+        const items = [];
+        let pos = arrStart;
+        while(true){
+          const ob = text.indexOf('{', pos + 1);
+          if(ob === -1) break;
+          const cb = text.indexOf('}', ob);
+          if(cb === -1) break; // object not closed yet
+          const chunk = text.slice(ob, cb + 1);
+          const summary = extractField(chunk + '"', 'summary');
+          const detail  = extractField(chunk + '"', 'detail');
+          const name    = extractField(chunk + '"', 'name');
+          const rate    = extractField(chunk + '"', 'rate');
+          const desc    = extractField(chunk + '"', 'desc');
+          if(summary && detail) items.push({summary, detail});
+          else if(name !== null && rate !== null && desc !== null) items.push({name, rate, desc});
+          pos = cb;
+        }
+        return items;
+      }
+
+      function tryProgressiveRender(){
+        // Stage 1 — what_is_it
+        if(!rendered.wit){
+          const wit = extractField(streamedText, 'what_is_it');
+          if(wit){
+            rendered.wit = true;
+            const rc = document.getElementById('results-content');
+            rc.innerHTML = '<div class="card wit-card" style="border-left:3px solid var(--wit-border);border-radius:0 var(--border-radius-lg) var(--border-radius-lg) 0;padding-left:1.1rem;margin-bottom:1rem">'
+              + '<p class="card-text">' + wit.replace(/\n/g,'<br>') + '</p></div>'
+              + '<div id="stream-wtlf"></div><div id="stream-picks"></div>';
+            if(statusEl) statusEl.style.display='none';
+          }
+        }
+
+        // Stage 2 — what_to_look_for items
+        if(rendered.wit){
+          const wtlfEl = document.getElementById('stream-wtlf');
+          if(wtlfEl){
+            const items = extractItems(streamedText, 'what_to_look_for');
+            if(items.length > 0){
+              let html = '<div class="expand-card"><button class="expand-header expanded" onclick="toggleExpand(this)"><span class="expand-icon">\u2212</span><span class="expand-label">WHAT TO LOOK FOR</span></button><div class="expand-body">';
+              items.forEach(it => {
+                html += '<div class="expand-item"><div class="expand-item-header"><span class="expand-check">\u2713</span><span class="expand-item-title">' + it.summary + '</span></div>'
+                  + '<p class="expand-item-detail">' + it.detail.replace(/\n/g,'<br>') + '</p></div>';
+              });
+              html += '</div></div>';
+              wtlfEl.innerHTML = html;
+            }
+            if(streamedText.includes('"top_picks"')) rendered.wtlf = true;
+          }
+        }
+
+        // Stage 3 — top_picks cards
+        if(rendered.wtlf){
+          const picksEl = document.getElementById('stream-picks');
+          if(picksEl){
+            const picks = extractItems(streamedText, 'top_picks');
+            if(picks.length > 0){
+              let html = '<span class="section-results-label">' + (infoOnlyTopics.has(currentTopic)?'Your breakdown':'Top picks right now') + '</span>';
+              picks.forEach((p, i) => {
+                const url = getLink(p.name, '');
+                const top = i===0;
+                if(!url){
+                  html += '<div class="card" style="margin-bottom:0.875rem;border-left:3px solid var(--wit-border);border-radius:0 var(--border-radius-lg) var(--border-radius-lg) 0;padding-left:1.1rem;">'
+                    + '<div class="provider-row" style="margin-bottom:' + (p.desc?'0.5rem':'0') + '"><span class="provider-name">' + p.name + '</span>' + (p.rate?'<span class="provider-rate" style="font-size:22px;">'+p.rate+'</span>':'') + '</div>'
+                    + (p.desc?'<p class="card-text" style="font-size:13px;">'+p.desc+'</p>':'') + '</div>';
+                } else {
+                  html += '<div class="provider-card ' + (top?'top':'') + '">' + (top?'<div class="provider-top-badge">Best match for you</div>':'')
+                    + '<div class="provider-body"><div class="provider-row"><span class="provider-name">'+p.name+'</span>'+(p.rate?'<span class="provider-rate">'+p.rate+'</span>':'')+'</div>'
+                    + '<p class="provider-desc">'+p.desc+'</p>'
+                    + '<a class="provider-btn '+(top?'':'outline')+'" href="'+url+'" target="_blank" rel="noopener noreferrer sponsored">Open account \u2192</a></div></div>';
+                }
+              });
+              picksEl.innerHTML = html;
+            }
+          }
+        }
+      }
+
       while(true){
         const {done, value} = await reader.read();
         if(done) break;
         buffer += decoder.decode(value, {stream:true});
         const lines = buffer.split('\n');
-        buffer = lines.pop(); // keep incomplete line
+        buffer = lines.pop();
 
         for(const line of lines){
           if(!line.startsWith('data: ')) continue;
-          const data = line.slice(6).trim();
-          if(data==='[DONE]'){
-            // Parse and render final accumulated text
-            try{
-              const parsed = parseJSON(streamedText);
-              renderResults(parsed);
-            }catch(e){
-              document.getElementById('results-content').innerHTML='<p style="color:var(--text-secondary);padding:1rem">Something went wrong — please go back and try again.</p>';
-            }
-            break;
-          }
+          const raw = line.slice(6).trim();
+          if(raw==='[DONE]') continue;
           try{
-            const event = JSON.parse(data);
-            if(event.text){
-              streamedText += event.text;
-              // Update status with progress hints
-              if(streamedText.includes('"what_to_look_for"') && statusEl) statusEl.textContent='Analysing your situation...';
-              if(streamedText.includes('"top_picks"') && statusEl) statusEl.textContent='Finding best options...';
+            const event = JSON.parse(raw);
+            if(event.chunk){
+              streamedText += event.chunk;
+              tryProgressiveRender();
             }
-          }catch(e){}
+            if(event.searching && statusEl) statusEl.textContent='Searching for live rates...';
+            if(event.error) throw new Error(event.error);
+            if(event.done){
+              // Final render with full parsed JSON to catch anything missed
+              try{
+                const parsed = parseJSON(streamedText);
+                renderResults(parsed);
+              }catch(e){
+                // Progressive render already showed content — just log
+                console.warn('Final parse failed, progressive render already shown');
+              }
+            }
+          }catch(e){ if(e.message && !e.message.includes('JSON')) throw e; }
         }
       }
     }catch(e){
@@ -609,10 +716,14 @@
     return '';
   }
 
-  function renderResults(data){
+  function buildWhatToLookFor(items){
     const s=isDark?'#a8e040':'#2d6a0f';
     const ch=`<svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M2 1.5l3 2.5-3 2.5" stroke="${s}" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-    let html=`<div class="card"><div class="card-header"><div class="card-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7 2v10" stroke="${s}" stroke-width="1.3" stroke-linecap="round"/></svg></div><span class="card-label">What to look for</span></div><ul class="expand-list">${data.what_to_look_for.map(i=>`<li class="expand-item"><button class="expand-trigger" onclick="toggleExpand(this)"><div class="expand-arrow">${ch}</div><span class="expand-summary">${i.summary}</span></button><div class="expand-detail">${i.detail}</div></li>`).join('')}</ul></div>`;
+    return `<div class="card"><div class="card-header"><div class="card-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7 2v10" stroke="${s}" stroke-width="1.3" stroke-linecap="round"/></svg></div><span class="card-label">What to look for</span></div><ul class="expand-list">${items.map(i=>`<li class="expand-item"><button class="expand-trigger" onclick="toggleExpand(this)"><div class="expand-arrow">${ch}</div><span class="expand-summary">${i.summary}</span></button><div class="expand-detail">${i.detail}</div></li>`).join('')}</ul></div>`;
+  }
+
+  function renderResults(data){
+    let html=buildWhatToLookFor(data.what_to_look_for);
     html+=`<span class="section-results-label">${infoOnlyTopics.has(currentTopic)?"Your breakdown":"Top picks right now"}</span>`;
     data.top_picks.forEach((p,i)=>{
       const top=i===0;
