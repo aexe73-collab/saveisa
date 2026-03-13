@@ -518,14 +518,20 @@
 
   // Looks up a tracked affiliate URL by matching provider name.
   // Falls back to the AI-supplied URL, then empty string.
+  // Topics that are purely informational — never show Open account button
+  const infoOnlyTopics = new Set(['payslip','student-loan','emergency-fund','mortgage','salary-sacrifice','on-track','auto-enrolment','state-pension']);
+
   function getLink(providerName, aiUrl){
+    // Never show buttons for info-only topics
+    if(infoOnlyTopics.has(currentTopic)) return '';
     if(!providerName) return aiUrl||'';
     const key = providerName.toLowerCase();
     for(const [fragment, url] of Object.entries(affiliateLinks)){
       if(key.includes(fragment)) return url;
     }
-    // No match found — use AI url as fallback (non-affiliate)
-    return aiUrl||'';
+    // No match — use AI url only if it looks like a real URL
+    if(aiUrl && aiUrl.startsWith('http') && aiUrl.length > 10) return aiUrl;
+    return '';
   }
 
   function renderResults(data){
