@@ -1,142 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>SaveISA — Your money, finally explained</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>SaveISA — understand your money</title>
+  <meta name="description" content="Money made simple. Decisions made easy. Real answers for real life — from ISAs to your first payslip."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --green-dark: #2d6a0f; --green-mid: #3d8a18; --green-light: #7dc94e;
-      --green-pale: #e6f5d0; --green-border: #c0dd97; --green-bg: #f7faf3;
-      --green-text: #1a2e0d; --green-sub: #4a6632; --green-muted: #7a9662;
-      --white: #ffffff; --red-bg: #fff5f5; --red-border: #f09595; --red-text: #a32d2d;
+      --bg:#f7faf3;--bg-card:#ffffff;--border:#d4e8b8;--border-mid:#c0dd97;
+      --text-primary:#1a2e0d;--text-secondary:#4a6632;--text-muted:#7a9662;
+      --green-dark:#2d6a0f;--green-mid:#3d8a18;--green-light:#7dc94e;
+      --provider-rate:#2d6a0f;--nav-bg:#f0f7e8;--expand-bg:#e6f5d0;
+      --icon-stroke:#2d6a0f;--icon-fill:#e6f5d0;
+      --toggle-bg:#e6f5d0;--toggle-icon:#2d6a0f;
+      --submit-bg:#2d6a0f;--submit-color:#ffffff;
+      --back-bg:#2d6a0f;--back-color:#ffffff;
+      --footer-bg:#f0f7e8;--footer-border:#d4e8b8;
+      --foot-active:#2d6a0f;--foot-inactive:#b0cca0;
+      --wit-border:#2d6a0f;--wit-label:#2d6a0f;
     }
-    html, body { font-family: 'DM Sans', sans-serif; background: var(--green-bg); color: var(--green-text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
-    .nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid #d4e8b8; background: var(--green-bg); }
-    .logo { font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px; font-weight: 700; color: var(--green-dark); letter-spacing: -0.5px; }
-    .logo span { color: var(--green-light); }
-    .back-btn { display: none; background: none; border: 1.5px solid var(--green-border); color: var(--green-dark); padding: 0.45rem 1.1rem; border-radius: 100px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
-    .back-btn:hover { background: var(--green-pale); }
-    .screen { display: none; padding: 1.75rem 1.25rem; max-width: 640px; margin: 0 auto; }
-    .screen.active { display: block; }
-    .screen-title { font-family: 'Bricolage Grotesque', sans-serif; font-size: clamp(22px, 6vw, 28px); font-weight: 700; color: var(--green-text); margin-bottom: 0.4rem; letter-spacing: -0.5px; }
-    .screen-sub { font-size: 15px; color: var(--green-sub); line-height: 1.55; margin-bottom: 1.75rem; }
-    .topic-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.875rem; }
-    .topic-card { background: var(--white); border: 1.5px solid #d4e8b8; border-radius: 16px; padding: 1.2rem 1.2rem 1rem; cursor: pointer; transition: border-color 0.2s, transform 0.15s; text-align: left; -webkit-tap-highlight-color: transparent; }
-    .topic-card:hover, .topic-card:active { border-color: var(--green-light); transform: translateY(-1px); }
-    .topic-icon-wrap { width: 48px; height: 48px; background: var(--green-pale); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 0.85rem; }
-    .topic-name { font-family: 'Bricolage Grotesque', sans-serif; font-size: 16px; font-weight: 600; color: var(--green-text); margin-bottom: 0.3rem; }
-    .topic-desc { font-size: 13px; color: var(--green-sub); line-height: 1.5; margin-bottom: 0.75rem; }
-    .topic-tag { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 100px; background: var(--green-pale); color: #27500a; border: 1px solid var(--green-border); }
-    .form-group { margin-bottom: 1.1rem; }
-    .form-label { font-size: 13px; font-weight: 500; color: var(--green-dark); margin-bottom: 0.4rem; display: block; }
-    .form-input, .form-select { width: 100%; padding: 0.7rem 1rem; border: 1.5px solid #d4e8b8; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 16px; color: var(--green-text); background: var(--white); outline: none; transition: border-color 0.2s; appearance: none; -webkit-appearance: none; }
-    .form-input:focus, .form-select:focus { border-color: var(--green-light); }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.875rem; }
-    @media (max-width: 380px) { .form-row { grid-template-columns: 1fr; } }
-    .submit-btn { width: 100%; background: var(--green-dark); color: #f7faf3; border: none; padding: 0.9rem 1rem; border-radius: 100px; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 500; cursor: pointer; transition: background 0.2s, transform 0.1s; margin-top: 0.75rem; -webkit-tap-highlight-color: transparent; }
-    .submit-btn:hover { background: var(--green-mid); }
-    .submit-btn:active { transform: scale(0.98); }
-    .restart-btn { width: 100%; background: none; border: 1.5px solid var(--green-border); color: var(--green-dark); padding: 0.85rem; border-radius: 100px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 1rem; transition: background 0.2s; }
-    .restart-btn:hover { background: var(--green-pale); }
-    .error-box { display: none; background: var(--red-bg); border: 1px solid var(--red-border); border-radius: 10px; padding: 0.85rem 1rem; font-size: 13px; color: var(--red-text); margin-bottom: 1rem; line-height: 1.5; }
-    .loading { text-align: center; padding: 3rem 1rem; }
-    .loading-spinner { width: 40px; height: 40px; border: 3px solid #d4e8b8; border-top-color: var(--green-dark); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-text { font-size: 14px; color: var(--green-sub); margin-bottom: 1rem; }
-    .loading-step { font-size: 13px; color: var(--green-muted); padding: 0.25rem 0; opacity: 0; transition: opacity 0.5s; }
-    .loading-step.visible { opacity: 1; }
-    .results-badge { display: inline-block; background: var(--green-pale); color: #27500a; border: 1px solid var(--green-border); font-size: 12px; font-weight: 500; padding: 3px 12px; border-radius: 100px; margin-bottom: 0.75rem; }
-    .ai-response { background: var(--white); border: 1px solid #d4e8b8; border-radius: 16px; padding: 1.25rem; line-height: 1.7; font-size: 14px; color: var(--green-text); }
-    .ai-response h3 { font-family: 'Bricolage Grotesque', sans-serif; font-size: 16px; font-weight: 600; color: var(--green-dark); margin: 1.1rem 0 0.4rem; }
-    .ai-response h3:first-child { margin-top: 0; }
-    .ai-response p { margin-bottom: 0.6rem; }
-    .ai-response ul { padding-left: 1.25rem; margin-bottom: 0.6rem; }
-    .ai-response li { margin-bottom: 0.35rem; }
-    .disclaimer { background: var(--green-bg); border: 1px solid #d4e8b8; border-radius: 10px; padding: 0.75rem 1rem; font-size: 11px; color: var(--green-muted); line-height: 1.6; margin-top: 1rem; }
-    .screen-padding-bottom { padding-bottom: calc(1.75rem + env(safe-area-inset-bottom)); }
+    .dark {
+      --bg:#2a3d18;--bg-card:#344a1e;--border:#4a6628;--border-mid:#6a8c38;
+      --text-primary:#e8f8c0;--text-secondary:#b8d880;--text-muted:#88a850;
+      --green-dark:#a8e040;--green-mid:#c0f050;--green-light:#a8e040;
+      --provider-rate:#a8e040;--nav-bg:#1e2e10;--expand-bg:#3e5828;
+      --icon-stroke:#a8e040;--icon-fill:#3e5828;
+      --toggle-bg:#3e5828;--toggle-icon:#a8e040;
+      --submit-bg:#a8e040;--submit-color:#1a2e0d;
+      --back-bg:#a8e040;--back-color:#1a2e0d;
+      --footer-bg:#1e2e10;--footer-border:#4a6628;
+      --foot-active:#a8e040;--foot-inactive:#4a6628;
+      --wit-border:#a8e040;--wit-label:#a8e040;
+    }
+
+    html,body{height:100%;}
+    body{font-family:'DM Sans',sans-serif;color:var(--text-primary);background:var(--bg);-webkit-font-smoothing:antialiased;}
+    #root{background:var(--bg);min-height:100vh;display:flex;flex-direction:column;transition:background 0.3s;}
+
+    /* NAV */
+    .nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border);background:var(--nav-bg);transition:background 0.3s,border-color 0.3s;}
+    .logo{font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:700;color:var(--text-primary);letter-spacing:-0.5px;text-decoration:none;}
+    .logo span{color:var(--green-light);}
+    .nav-right{display:flex;align-items:center;gap:0.75rem;}
+    .back-btn{display:none;background:var(--back-bg)!important;color:var(--back-color)!important;border:none!important;padding:0.45rem 1rem 0.45rem 0.75rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:opacity 0.2s;align-items:center;gap:0.3rem;}
+    .back-btn:hover{opacity:0.85;}
+    .back-btn.visible{display:flex;}
+    .toggle-btn{width:44px;height:24px;background:var(--toggle-bg);border:1.5px solid var(--border-mid);border-radius:100px;cursor:pointer;position:relative;transition:background 0.3s;flex-shrink:0;padding:0;}
+    .toggle-thumb{width:16px;height:16px;background:var(--toggle-icon);border-radius:50%;position:absolute;top:2px;left:2px;transition:transform 0.25s,background 0.3s;}
+    .dark .toggle-thumb{transform:translateX(20px);}
+
+    /* SCREENS */
+    .screen{display:none;padding:1.75rem 1.25rem 1.5rem;max-width:720px;margin:0 auto;width:100%;flex:1;}
+    .screen.active{display:block;}
+    .screen-title{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(20px,5vw,26px);font-weight:700;color:var(--text-primary);margin-bottom:0.35rem;letter-spacing:-0.5px;line-height:1.2;}
+    .screen-sub{font-size:15px;color:var(--text-secondary);line-height:1.55;margin-bottom:1.75rem;}
+
+    /* TOPIC LIST */
+    .topic-section{margin-bottom:1.75rem;}
+    .section-label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.6rem;}
+    .section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+    .topic-list{display:flex;flex-direction:column;gap:0.6rem;}
+    .topic-card{background:var(--bg-card);border:1.5px solid var(--border);border-radius:14px;padding:1rem 1.1rem;cursor:pointer;transition:border-color 0.2s,transform 0.15s,background 0.3s;display:flex;align-items:center;gap:1rem;width:100%;text-align:left;}
+    .topic-card:hover{border-color:var(--green-light);transform:translateX(3px);}
+    .topic-icon-wrap{width:46px;height:46px;background:var(--expand-bg);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.3s;}
+    .topic-text{flex:1;min-width:0;}
+    .topic-name{font-family:'Bricolage Grotesque',sans-serif;font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:0.2rem;}
+    .topic-desc{font-size:13px;color:var(--text-secondary);line-height:1.45;}
+    .topic-right{display:flex;align-items:center;gap:0.6rem;flex-shrink:0;}
+    .topic-tag{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:100px;background:transparent;color:var(--text-muted);border:1px solid var(--border-mid);white-space:nowrap;}
+    @media(max-width:480px){.topic-tag{display:none;}}
+    .topic-chevron{color:var(--text-muted);flex-shrink:0;}
+
+    /* FORM */
+    .form-title{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(20px,5vw,26px);font-weight:700;color:var(--text-primary);margin-bottom:1rem;letter-spacing:-0.5px;}
+    .what-is-it{background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--wit-border);border-radius:10px;padding:0.875rem 1rem;margin-bottom:0.5rem;}
+    .wit-label{font-size:11px;font-weight:600;color:var(--wit-label);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.4rem;}
+    .wit-text{font-size:13px;color:var(--text-secondary);line-height:1.6;}
+    .form-sub{font-size:14px;color:var(--text-muted);line-height:1.5;margin:1rem 0 1.25rem;}
+    .form-group{margin-bottom:1.1rem;}
+    .form-label{font-size:13px;font-weight:500;color:var(--green-dark);margin-bottom:0.4rem;display:block;}
+    .form-input,.form-select{width:100%;padding:0.75rem 1rem;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:16px;color:var(--text-primary);background:var(--bg-card);outline:none;transition:border-color 0.2s,background 0.3s;appearance:none;-webkit-appearance:none;}
+    .form-input:focus,.form-select:focus{border-color:var(--green-light);}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;}
+    @media(max-width:400px){.form-row{grid-template-columns:1fr;}}
+    .submit-btn{width:100%;background:var(--submit-bg)!important;color:var(--submit-color)!important;border:none!important;padding:0.9rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:opacity 0.2s;margin-top:0.75rem;}
+    .submit-btn:hover{opacity:0.88;}
+    .error-box{display:none;background:var(--expand-bg);border:1px solid var(--border-mid);border-radius:10px;padding:0.85rem 1rem;font-size:13px;color:var(--text-secondary);margin-bottom:1rem;}
+
+    /* LOADING */
+    .loading{text-align:center;padding:3rem 1rem;}
+    .loading-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--green-dark);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 1rem;}
+    .loading-text{font-size:14px;color:var(--text-secondary);margin-bottom:1rem;}
+    .loading-step{font-size:13px;color:var(--text-muted);padding:0.25rem 0;opacity:0;transition:opacity 0.5s;}
+    .loading-step.visible{opacity:1;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    /* RESULTS */
+    .results-badge{display:inline-block;background:var(--expand-bg);color:var(--text-secondary);border:1px solid var(--border-mid);font-size:12px;font-weight:500;padding:3px 12px;border-radius:100px;margin-bottom:0.75rem;}
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:1.1rem 1.25rem;margin-bottom:0.875rem;transition:background 0.3s,border-color 0.3s;}
+    .card-header{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.6rem;}
+    .card-icon{width:28px;height:28px;background:var(--expand-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .card-label{font-size:11px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;}
+    .card-text{font-size:14px;color:var(--text-secondary);line-height:1.6;}
+    .expand-list{list-style:none;}
+    .expand-item{border-bottom:1px solid var(--border);}
+    .expand-item:last-child{border-bottom:none;}
+    .expand-trigger{width:100%;background:none;border:none;padding:0.6rem 0;display:flex;align-items:flex-start;gap:0.5rem;cursor:pointer;text-align:left;}
+    .expand-arrow{width:18px;height:18px;background:var(--expand-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+    .expand-arrow svg{transition:transform 0.2s;}
+    .expand-trigger.open .expand-arrow svg{transform:rotate(90deg);}
+    .expand-summary{font-size:14px;color:var(--text-primary);font-weight:500;line-height:1.5;flex:1;}
+    .expand-detail{font-size:13px;color:var(--text-secondary);line-height:1.6;padding:0 0 0.6rem 1.5rem;display:none;}
+    .expand-detail.open{display:block;}
+    .section-results-label{font-size:11px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;padding:0 0.25rem 0.6rem;display:block;margin-top:0.5rem;}
+    .provider-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;margin-bottom:0.875rem;overflow:hidden;transition:background 0.3s,border-color 0.3s;}
+    .provider-card.top{border:2px solid var(--green-light);}
+    .provider-top-badge{background:var(--expand-bg);color:var(--text-secondary);font-size:11px;font-weight:500;padding:5px 12px;text-align:center;border-bottom:1px solid var(--border-mid);}
+    .provider-body{padding:1rem 1.25rem;}
+    .provider-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;}
+    .provider-name{font-family:'Bricolage Grotesque',sans-serif;font-size:16px;font-weight:600;color:var(--text-primary);}
+    .provider-rate{font-family:'Bricolage Grotesque',sans-serif;font-size:20px;font-weight:700;color:var(--provider-rate);}
+    .provider-desc{font-size:13px;color:var(--text-secondary);line-height:1.5;margin-bottom:0.75rem;}
+    .provider-btn{display:block;width:100%;background:var(--submit-bg);color:var(--submit-color);border:none;padding:0.7rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;text-align:center;transition:opacity 0.2s;text-decoration:none;}
+    .provider-btn:hover{opacity:0.88;}
+    .provider-btn.outline{background:none;border:1.5px solid var(--border-mid);color:var(--green-dark);font-weight:500;}
+    .provider-btn.outline:hover{background:var(--expand-bg);opacity:1;}
+    .more-btn{width:100%;background:none;border:1.5px solid var(--border-mid);color:var(--green-dark);padding:0.8rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:0.875rem;transition:background 0.2s;}
+    .more-btn:hover{background:var(--expand-bg);}
+    .more-btn .spinner{width:14px;height:14px;border:2px solid var(--border-mid);border-top-color:var(--green-dark);border-radius:50%;animation:spin 0.7s linear infinite;display:none;}
+    .more-btn.loading .spinner{display:block;}
+    .more-btn.loading .btn-label{opacity:0.5;}
+    .more-providers{display:none;}
+    .more-providers.open{display:block;}
+    .market-link-wrap{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:0.875rem;}
+    .market-link{display:flex;align-items:center;justify-content:center;padding:0.9rem;font-size:13px;color:var(--text-muted);text-decoration:none;transition:color 0.2s;}
+    .market-link:hover{color:var(--green-dark);}
+    .disclaimer{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:0.75rem 1rem;font-size:11px;color:var(--text-muted);line-height:1.6;margin-top:0.875rem;}
+    .restart-btn{width:100%;background:none;border:1.5px solid var(--border-mid);color:var(--green-dark);padding:0.85rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;margin-top:1rem;transition:background 0.2s;}
+    .restart-btn:hover{background:var(--expand-bg);}
+
+    /* FOOTER NAV */
+    .footer-nav{position:sticky;bottom:0;z-index:100;background:var(--footer-bg);border-top:1px solid var(--footer-border);display:flex;transition:background 0.3s,border-color 0.3s;}
+    .foot-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.6rem 0 0.5rem;gap:3px;cursor:pointer;text-decoration:none;transition:opacity 0.2s;}
+    .foot-tab svg{color:var(--foot-inactive);transition:color 0.3s;}
+    .foot-tab span{font-size:11px;font-weight:600;color:var(--foot-inactive);letter-spacing:0.3px;transition:color 0.3s;}
+    .foot-tab.active svg,.foot-tab.active span{color:var(--foot-active);}
   </style>
 </head>
 <body>
+<div id="root" class="dark">
   <nav class="nav">
-    <div class="logo">Save<span>ISA</span></div>
-    <button class="back-btn" id="back-btn" onclick="goBack()">← Back</button>
+    <a class="logo" href="#" id="nav-logo">Save<span>ISA</span></a>
+    <div class="nav-right">
+      <button class="back-btn" id="back-btn" onclick="goBack()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back
+      </button>
+      <button class="toggle-btn" onclick="toggleDark()" aria-label="Toggle dark mode"><div class="toggle-thumb"></div></button>
+    </div>
   </nav>
 
-  <div class="screen active screen-padding-bottom" id="screen-topics">
-    <p class="screen-title">What do you want to understand?</p>
-    <p class="screen-sub">Pick a topic and we'll explain it clearly, then find the best deals for your situation.</p>
-    <div class="topic-grid">
+  <!-- SAVEISA TOPICS -->
+  <div class="screen active" id="screen-topics">
+    <p class="screen-title">Money made simple.<br>Decisions made easy.</p>
+    <p class="screen-sub">Real answers for real life — from ISAs to your first payslip.</p>
 
-      <div class="topic-card" onclick="selectTopic('cash-isa')">
-        <div class="topic-icon-wrap">
-          <svg width="28" height="28" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M14 8c0-1.2 2.2-2 5-2s5 .8 5 2l2 4H12L14 8z" stroke="#2d6a0f" stroke-width="2" stroke-linejoin="round"/>
-            <path d="M10 12h18c.8 3.5 1.5 6 1.5 9.5 0 5-3.8 7.5-10.5 7.5S8.5 26.5 8.5 21.5C8.5 18 9.2 15.5 10 12z" stroke="#2d6a0f" stroke-width="2" stroke-linejoin="round"/>
-            <text x="19" y="24" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#2d6a0f">&#163;</text>
-          </svg>
-        </div>
-        <div class="topic-name">Cash ISA</div>
-        <div class="topic-desc">Save up to £20,000 tax-free per year. Find the best rates available right now.</div>
-        <span class="topic-tag">Compare rates</span>
+    <div class="topic-section">
+      <div class="section-label">Savings &amp; investing</div>
+      <div class="topic-list">
+        <button class="topic-card" onclick="selectTopic('cash-isa')">
+          <div class="topic-icon-wrap"><svg width="26" height="26" viewBox="0 0 38 38" fill="none"><path d="M14 8c0-1.2 2.2-2 5-2s5 .8 5 2l2 4H12L14 8z" stroke="var(--icon-stroke)" stroke-width="2" stroke-linejoin="round"/><path d="M10 12h18c.8 3.5 1.5 6 1.5 9.5 0 5-3.8 7.5-10.5 7.5S8.5 26.5 8.5 21.5C8.5 18 9.2 15.5 10 12z" stroke="var(--icon-stroke)" stroke-width="2" stroke-linejoin="round"/><text x="19" y="24" text-anchor="middle" font-family="Georgia,serif" font-size="11" font-weight="bold" fill="var(--icon-stroke)">&#163;</text></svg></div>
+          <div class="topic-text"><div class="topic-name">Cash ISA</div><div class="topic-desc">Save up to £20,000 tax-free per year. Compare the best rates right now.</div></div>
+          <div class="topic-right"><span class="topic-tag">Compare rates</span><svg class="topic-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </button>
+        <button class="topic-card" onclick="selectTopic('lifetime-isa')">
+          <div class="topic-icon-wrap"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M4 13L13 5l9 8" stroke="var(--icon-stroke)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 11v8a1 1 0 001 1h3v-4h4v4h3a1 1 0 001-1v-8" stroke="var(--icon-stroke)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="19" cy="7" r="2.5" fill="var(--icon-fill)" stroke="var(--icon-stroke)" stroke-width="1.3"/><path d="M18.2 7l.6.6 1.2-1.2" stroke="var(--icon-stroke)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="topic-text"><div class="topic-name">Lifetime ISA</div><div class="topic-desc">Get a 25% government bonus on savings up to £4,000/year. Built for first-time buyers.</div></div>
+          <div class="topic-right"><span class="topic-tag">First home</span><svg class="topic-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </button>
+        <button class="topic-card" onclick="selectTopic('emergency-fund')">
+          <div class="topic-icon-wrap"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M13 3L4 7v6c0 5 4 8.5 9 10 5-1.5 9-5 9-10V7L13 3z" stroke="var(--icon-stroke)" stroke-width="1.6" stroke-linejoin="round"/><text x="13" y="17" text-anchor="middle" font-family="Georgia,serif" font-size="9" font-weight="bold" fill="var(--icon-stroke)">&#163;</text></svg></div>
+          <div class="topic-text"><div class="topic-name">Emergency fund</div><div class="topic-desc">How much should you save before anything else? Find out in 60 seconds.</div></div>
+          <div class="topic-right"><span class="topic-tag">Calculator</span><svg class="topic-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </button>
       </div>
+    </div>
 
-      <div class="topic-card" onclick="selectTopic('lifetime-isa')">
-        <div class="topic-icon-wrap">
-          <svg width="28" height="28" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4 13L13 5l9 8" stroke="#2d6a0f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M7 11v8a1 1 0 001 1h3v-4h4v4h3a1 1 0 001-1v-8" stroke="#2d6a0f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="19" cy="7" r="2.5" fill="#e6f5d0" stroke="#7dc94e" stroke-width="1.3"/>
-            <path d="M18.2 7l.6.6 1.2-1.2" stroke="#3b6d11" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div class="topic-name">Lifetime ISA</div>
-        <div class="topic-desc">Get a 25% government bonus on savings up to £4,000/year. Built for first-time buyers.</div>
-        <span class="topic-tag">First home</span>
+    <div class="topic-section">
+      <div class="section-label">Borrowing</div>
+      <div class="topic-list">
+        <button class="topic-card" onclick="selectTopic('credit-cards')">
+          <div class="topic-icon-wrap"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="2" y="6" width="22" height="14" rx="2.5" stroke="var(--icon-stroke)" stroke-width="1.6"/><path d="M2 10h22" stroke="var(--icon-stroke)" stroke-width="1.6"/><rect x="5" y="14" width="5" height="2.5" rx="1" fill="var(--icon-stroke)"/></svg></div>
+          <div class="topic-text"><div class="topic-name">Credit cards</div><div class="topic-desc">Your first credit card, APR explained, and how to build your credit score without getting burnt.</div></div>
+          <div class="topic-right"><span class="topic-tag">Compare cards</span><svg class="topic-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </button>
+        <button class="topic-card" onclick="selectTopic('personal-loans')">
+          <div class="topic-icon-wrap"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="13" cy="10" r="5" stroke="var(--icon-stroke)" stroke-width="1.6"/><text x="13" y="13" text-anchor="middle" font-family="Georgia,serif" font-size="8" font-weight="bold" fill="var(--icon-stroke)">&#163;</text><path d="M4 22c0-3.3 4-6 9-6s9 2.7 9 6" stroke="var(--icon-stroke)" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+          <div class="topic-text"><div class="topic-name">Personal loans</div><div class="topic-desc">Is a loan right for you? Understand the true cost and alternatives before you apply.</div></div>
+          <div class="topic-right"><span class="topic-tag">Education</span><svg class="topic-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </button>
       </div>
+    </div>
 
-      <div class="topic-card" onclick="selectTopic('student-loan')">
-        <div class="topic-icon-wrap">
-          <svg width="28" height="28" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M13 4L3 9l10 5 10-5-10-5z" stroke="#2d6a0f" stroke-width="1.6" stroke-linejoin="round"/>
-            <path d="M7 11.5V17c0 0 2 2.5 6 2.5s6-2.5 6-2.5v-5.5" stroke="#2d6a0f" stroke-width="1.6" stroke-linecap="round"/>
-            <path d="M21 9v5" stroke="#7dc94e" stroke-width="1.6" stroke-linecap="round"/>
-            <circle cx="21" cy="15.5" r="1.2" fill="#7dc94e"/>
-          </svg>
-        </div>
-        <div class="topic-name">Student loan</div>
-        <div class="topic-desc">Understand what you actually owe, when you repay, and whether it even matters.</div>
-        <span class="topic-tag">Education</span>
+    <div class="topic-section">
+      <div class="section-label">Life moments</div>
+      <div class="topic-list">
+        <button class="topic-card" onclick="selectTopic('student-loan')">
+          <div class="topic-icon-wrap"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M13 4L3 9l10 5 10-5-10-5z" stroke="var(--icon-stroke)" stroke-width="1.6" stroke-linejoin="round"/><path d="M7 11.5V17c0 0 2 2.5 6 2.5s6-2.5 6-2.5v-5.5" stroke="var(--icon-stroke)" stroke-width="1.6" stroke-linecap="round"/><path d="M21 9v5" stroke="var(--icon-stroke)" stroke-width="1.6" stroke-linecap="round"/><circle cx="21" cy="15.5" r="1.2" fill="var(--icon-stroke)"/></svg></div>
+          <div class="topic-text"><div class="topic-name">Student loan</div><div class="topic-desc">Understand what you actually owe, when you repay, and whether it even matters.</div></div>
+          <div class="topic-right"><span class="topic-tag">Education</span><svg class="topic-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </button>
+        <button class="topic-card" onclick="selectTopic('payslip')">
+          <div class="topic-icon-wrap"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="5" y="3" width="16" height="20" rx="2" stroke="var(--icon-stroke)" stroke-width="1.6"/><path d="M9 8h8M9 12h8M9 16h5" stroke="var(--icon-stroke)" stroke-width="1.5" stroke-linecap="round"/><circle cx="18.5" cy="17.5" r="3.5" fill="var(--icon-fill)" stroke="var(--icon-stroke)" stroke-width="1.3"/><path d="M17.5 17.5l.8.8 1.5-1.5" stroke="var(--icon-stroke)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="topic-text"><div class="topic-name">First payslip</div><div class="topic-desc">Decode your payslip — tax, NI, pension and student loan deductions explained.</div></div>
+          <div class="topic-right"><span class="topic-tag">Education</span><svg class="topic-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </button>
+        <button class="topic-card" onclick="selectTopic('mortgage')">
+          <div class="topic-icon-wrap"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M3 12L13 4l10 8" stroke="var(--icon-stroke)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v10a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1V10" stroke="var(--icon-stroke)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="topic-text"><div class="topic-name">Mortgage basics</div><div class="topic-desc">Am I ready to buy? What deposit do I need? How does a mortgage actually work?</div></div>
+          <div class="topic-right"><span class="topic-tag">First home</span><svg class="topic-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </button>
       </div>
-
-      <div class="topic-card" onclick="selectTopic('payslip')">
-        <div class="topic-icon-wrap">
-          <svg width="28" height="28" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="5" y="3" width="16" height="20" rx="2" stroke="#2d6a0f" stroke-width="1.6"/>
-            <path d="M9 8h8M9 12h8M9 16h5" stroke="#2d6a0f" stroke-width="1.5" stroke-linecap="round"/>
-            <circle cx="18.5" cy="17.5" r="3.5" fill="#e6f5d0" stroke="#7dc94e" stroke-width="1.3"/>
-            <path d="M17.5 17.5l.8.8 1.5-1.5" stroke="#3b6d11" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div class="topic-name">First payslip</div>
-        <div class="topic-desc">Decode your payslip — tax, NI, pension, student loan deductions explained.</div>
-        <span class="topic-tag">Education</span>
-      </div>
-
     </div>
   </div>
 
-  <div class="screen screen-padding-bottom" id="screen-form">
-    <p class="screen-title" id="form-title"></p>
-    <p class="screen-sub" id="form-sub"></p>
+  <!-- SAVEPENSION TOPICS -->
+  <div class="screen" id="screen-pension">
+    <p class="screen-title">Your pension, finally making sense.</p>
+    <p class="screen-sub">Understand where your money is going — and how to make it work harder for you.</p>
+    <div class="topic-section">
+      <div class="section-label">Getting started</div>
+      <div class="topic-list">
+        <button class="topic-card" onclick="selectTopic('auto-enrolment')">
+          <div class="topic-icon-wrap"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="13" cy="13" r="9" stroke="var(--icon-stroke)" stroke-width="1.6"/><path d="M13 8v5l3 2" stroke="var(--icon-stroke)" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+          <div class="topic-text"><div class="topic-name">Auto-enrolment</div><div class="topic-desc">What it means — and why you almost certainly shouldn't opt out.</div></div>
+          <div class="topic-right"><span class="topic-tag">Education</span><svg class="topic-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </button>
+        <button class="topic-card" onclick="selectTopic('salary-sacrifice')">
+          <div class="topic-icon-wrap"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M4 20V10l9-6 9 6v10" stroke="var(--icon-stroke)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 20v-6h8v6" stroke="var(--icon-stroke)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="topic-text"><div class="topic-name">Salary sacrifice</div><div class="topic-desc">The tax saving most people with a pension don't know about.</div></div>
+          <div class="topic-right"><span class="topic-tag">Calculator</span><svg class="topic-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </button>
+        <button class="topic-card" onclick="selectTopic('on-track')">
+          <div class="topic-icon-wrap"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M4 18l5-5 4 4 8-8" stroke="var(--icon-stroke)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="topic-text"><div class="topic-name">Am I on track?</div><div class="topic-desc">How much should you have saved by your age, and what to do if you're behind.</div></div>
+          <div class="topic-right"><span class="topic-tag">Calculator</span><svg class="topic-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </button>
+      </div>
+    </div>
+    <div class="topic-section">
+      <div class="section-label">Take control</div>
+      <div class="topic-list">
+        <button class="topic-card" onclick="selectTopic('consolidate')">
+          <div class="topic-icon-wrap"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="8" cy="13" r="4.5" stroke="var(--icon-stroke)" stroke-width="1.5"/><circle cx="18" cy="13" r="4.5" stroke="var(--icon-stroke)" stroke-width="1.5"/><path d="M12.5 10.5v5M13.5 10.5v5" stroke="var(--icon-stroke)" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+          <div class="topic-text"><div class="topic-name">Consolidate old pots</div><div class="topic-desc">Find and merge pensions from previous jobs into one place.</div></div>
+          <div class="topic-right"><span class="topic-tag">Education</span><svg class="topic-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </button>
+        <button class="topic-card" onclick="selectTopic('state-pension')">
+          <div class="topic-icon-wrap"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M13 3l2.5 5 5.5.8-4 3.9.95 5.5L13 15.5 8.05 18.2 9 12.7 5 8.8l5.5-.8L13 3z" stroke="var(--icon-stroke)" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+          <div class="topic-text"><div class="topic-name">State Pension</div><div class="topic-desc">Will it exist when you retire — and will it be enough to live on?</div></div>
+          <div class="topic-right"><span class="topic-tag">Education</span><svg class="topic-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORM -->
+  <div class="screen" id="screen-form">
+    <div class="form-title" id="form-title"></div>
+    <div class="what-is-it">
+      <div class="wit-label">What is it?</div>
+      <div class="wit-text" id="wit-text"></div>
+    </div>
+    <div class="form-sub" id="form-sub"></div>
     <div id="form-fields"></div>
     <div class="error-box" id="error-box"></div>
     <button class="submit-btn" onclick="submitForm()">Find my best options</button>
   </div>
 
+  <!-- LOADING -->
   <div class="screen" id="screen-loading">
     <div class="loading">
       <div class="loading-spinner"></div>
@@ -148,129 +294,156 @@
     </div>
   </div>
 
-  <div class="screen screen-padding-bottom" id="screen-results">
+  <!-- RESULTS -->
+  <div class="screen" id="screen-results">
     <div style="margin-bottom:1.25rem;">
       <div class="results-badge">Your personalised results</div>
       <p class="screen-title" id="results-title"></p>
     </div>
-    <div class="ai-response" id="ai-response-content"></div>
-    <div class="disclaimer">Rates and information sourced from publicly available sources and may change. Always verify directly with the provider before opening an account. SaveISA provides information, not financial advice. Your capital may be at risk for investment products.</div>
+    <div id="results-content"></div>
+    <div class="disclaimer">Rates and information sourced from publicly available data and may change. Always verify directly with the provider before making any financial decision. SaveISA provides information, not financial advice.</div>
     <button class="restart-btn" onclick="restart()">Explore another topic</button>
   </div>
 
-  <script>
-    let currentTopic = '';
+  <!-- FOOTER NAV -->
+  <nav class="footer-nav" id="footer-nav">
+    <a class="foot-tab active" id="foot-isa" onclick="switchProduct('isa')" href="#">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a1 1 0 01-1 1H4a1 1 0 01-1-1V9z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 22V12h6v10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>SaveISA</span>
+    </a>
+    <a class="foot-tab" id="foot-pension" onclick="switchProduct('pension')" href="#">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <span>SavePension</span>
+    </a>
+  </nav>
+</div>
 
-    const topics = {
-      'cash-isa': {
-        title: 'Cash ISA', sub: 'A few quick questions to find your best Cash ISA rate.',
-        resultsTitle: 'Your Cash ISA recommendation',
-        fields: `<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 22"/></div><div class="form-group"><label class="form-label">Annual salary (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 28000"/></div></div><div class="form-group"><label class="form-label">How much do you want to save? (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-amount" placeholder="e.g. 5000"/></div><div class="form-group"><label class="form-label">What's your main goal?</label><select class="form-select" id="f-goal"><option value="">Select a goal</option><option value="emergency fund">Build an emergency fund</option><option value="saving for a house">Saving for a house</option><option value="general savings">General savings</option><option value="holiday or big purchase">Holiday or big purchase</option></select></div>`,
-        prompt: (d) => `You are SaveISA, a friendly UK financial education and comparison tool for 18-24 year olds. The user is ${d.age} years old, earns £${d.salary} per year, wants to save £${d.amount}, goal: ${d.goal}. Search the web for current best Cash ISA rates in the UK from providers like Marcus, Chase, Trading 212, Chip, Plum, Moneybox, and major banks. Respond with: 1. Short plain-English explanation of Cash ISA and why it suits their goal (2-3 sentences). 2. "What to look for" — 2-3 bullets specific to their situation. 3. "Top picks right now" — 3-4 providers with current rates, one-line description, who it suits. 4. Clear recommendation and why. Friendly, no jargon. HTML with h3 headings, ul/li. No markdown. Address as "you".`
-      },
-      'lifetime-isa': {
-        title: 'Lifetime ISA', sub: 'Tell us about your situation to find the right LISA for you.',
-        resultsTitle: 'Your Lifetime ISA recommendation',
-        fields: `<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 22"/></div><div class="form-group"><label class="form-label">Annual salary (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 28000"/></div></div><div class="form-group"><label class="form-label">How much can you save per year? (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-amount" placeholder="e.g. 2000"/></div><div class="form-group"><label class="form-label">Are you a first-time buyer?</label><select class="form-select" id="f-goal"><option value="">Select one</option><option value="yes, saving for first home">Yes, saving for my first home</option><option value="yes but not buying yet">Yes but not thinking about buying yet</option><option value="no">No, already own a property</option></select></div>`,
-        prompt: (d) => `You are SaveISA, a friendly UK financial education and comparison tool for 18-24 year olds. The user is ${d.age} years old, earns £${d.salary} per year, can save £${d.amount} per year, situation: ${d.goal}. Search the web for current best Lifetime ISA providers in the UK including Moneybox, Nutmeg, AJ Bell, Hargreaves Lansdown, Beehive Money. Respond with: 1. Plain-English explanation of LISA and 25% bonus (2-3 sentences). 2. Key things to know — 2-3 bullets including withdrawal penalty. 3. "Top LISA providers right now" — 3 providers with rates/features. 4. Clear recommendation. Friendly, no jargon. HTML with h3, ul/li. No markdown. Address as "you".`
-      },
-      'student-loan': {
-        title: 'Student loan', sub: 'Tell us about your loan so we can explain what it really means for you.',
-        resultsTitle: 'Your student loan explained',
-        fields: `<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 22"/></div><div class="form-group"><label class="form-label">Annual salary (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 28000"/></div></div><div class="form-group"><label class="form-label">Which student loan plan are you on?</label><select class="form-select" id="f-goal"><option value="">Select your plan</option><option value="Plan 1">Plan 1 — started uni before 2012</option><option value="Plan 2">Plan 2 — started uni 2012–2023</option><option value="Plan 5">Plan 5 — started uni 2023 or later</option><option value="not sure">Not sure which plan</option></select></div><div class="form-group"><label class="form-label">Approximate total loan amount (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-amount" placeholder="e.g. 45000"/></div>`,
-        prompt: (d) => `You are SaveISA, a friendly UK financial education tool for 18-24 year olds. The user is ${d.age} years old, earns £${d.salary} per year, on ${d.goal}, approximately £${d.amount} in student loan debt. Explain clearly: 1. Monthly repayment now (calculate it). 2. Repayment threshold and what changes if salary changes. 3. Interest rate and how it works. 4. Whether they'll repay in full or have it written off — be honest. 5. One practical tip. Friendly, reassuring tone. HTML with h3, ul/li. No markdown. Address as "you".`
-      },
-      'payslip': {
-        title: 'First payslip', sub: "Tell us about your job and we'll decode exactly what's happening to your money.",
-        resultsTitle: 'Your payslip decoded',
-        fields: `<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 22"/></div><div class="form-group"><label class="form-label">Annual salary (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 28000"/></div></div><div class="form-group"><label class="form-label">Are you auto-enrolled into a workplace pension?</label><select class="form-select" id="f-goal"><option value="">Select one</option><option value="yes enrolled">Yes, I'm enrolled</option><option value="opted out">No, I opted out</option><option value="not sure">Not sure</option></select></div><div class="form-group"><label class="form-label">Do you have a student loan?</label><select class="form-select" id="f-amount"><option value="">Select one</option><option value="Plan 2">Yes — Plan 2</option><option value="Plan 5">Yes — Plan 5</option><option value="Plan 1">Yes — Plan 1</option><option value="no student loan">No student loan</option></select></div>`,
-        prompt: (d) => `You are SaveISA, a friendly UK financial education tool for 18-24 year olds. The user is ${d.age} years old, earns £${d.salary} per year, pension: ${d.goal}, student loan: ${d.amount}. Decode their payslip: 1. Gross monthly pay. 2. Income tax — band and monthly amount. 3. National Insurance — rate and monthly amount. 4. Student loan deduction if applicable. 5. Pension contribution if enrolled (5%). 6. Estimated monthly take-home. 7. One thing most people their age don't realise. Show numbers clearly. Empowering tone. HTML with h3, ul/li. No markdown. Address as "you".`
-      }
-    };
+<script>
+  let currentTopic='', currentProduct='isa', isDark=true;
 
-    function selectTopic(topic) {
-      currentTopic = topic;
-      const t = topics[topic];
-      document.getElementById('form-title').textContent = t.title;
-      document.getElementById('form-sub').textContent = t.sub;
-      document.getElementById('form-fields').innerHTML = t.fields;
-      document.getElementById('error-box').style.display = 'none';
+  function toggleDark(){
+    isDark=!isDark;
+    document.getElementById('root').className=isDark?'dark':'';
+  }
+
+  function switchProduct(p){
+    currentProduct=p;
+    document.getElementById('foot-isa').className='foot-tab'+(p==='isa'?' active':'');
+    document.getElementById('foot-pension').className='foot-tab'+(p==='pension'?' active':'');
+    const logo=document.getElementById('nav-logo');
+    logo.innerHTML=p==='isa'?'Save<span>ISA</span>':'Save<span>Pension</span>';
+    showScreen(p==='isa'?'screen-topics':'screen-pension');
+    document.getElementById('back-btn').classList.remove('visible');
+    window.scrollTo(0,0);
+  }
+
+  const witDescriptions = {
+    'cash-isa':'A Cash ISA lets you save up to £20,000 per year completely tax-free. The interest you earn never gets taxed — unlike a regular savings account.',
+    'lifetime-isa':'A Lifetime ISA gives you a 25% government bonus on up to £4,000 you save each year — that\'s up to £1,000 free money annually. You can use it to buy your first home or retire.',
+    'emergency-fund':'An emergency fund is 3–6 months of essential costs kept in an easy-access account. It\'s your financial safety net before you invest anything else.',
+    'credit-cards':'A credit card lets you spend money and pay it back later. Used responsibly — paying in full each month — it\'s one of the best ways to build your credit score.',
+    'personal-loans':'A personal loan gives you a lump sum upfront that you repay with interest over a fixed term. The key number to understand is the total you\'ll repay, not just the monthly amount.',
+    'student-loan':'A UK student loan isn\'t like a normal loan — you only repay when you earn above a threshold, and it gets written off after 30-40 years regardless of how much is left.',
+    'payslip':'Your payslip shows your gross pay (what you\'re owed) and then deductions — income tax, National Insurance, pension contributions, and student loan if applicable — before your take-home pay.',
+    'mortgage':'A mortgage is a long-term loan secured against a property. Lenders typically lend up to 4–4.5x your salary, and your deposit size directly affects the interest rate you\'ll be offered.',
+    'auto-enrolment':'Auto-enrolment means your employer automatically puts you in a workplace pension. Both you and your employer contribute — it\'s essentially free money added to your salary.',
+    'salary-sacrifice':'Salary sacrifice means paying pension contributions from your gross pay before tax. This reduces your taxable income, so you pay less income tax and National Insurance.',
+    'on-track':'Most financial planners suggest saving 10–15% of your salary into a pension. This tool will calculate your personal target based on your age, salary, and when you want to retire.',
+    'consolidate':'Many people have multiple small pension pots from different jobs. Merging them into one makes them easier to manage, and can mean lower fees and better investment options.',
+    'state-pension':'The full State Pension is currently £221.20/week (2024/25). You need 35 qualifying National Insurance years to receive it. Retirement age is currently 66, rising to 67 by 2028.'
+  };
+
+  const topics = {
+    'cash-isa':{title:'Cash ISA',sub:'Tell us about your situation to find your best rate.',resultsTitle:'Your Cash ISA options',fields:`<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 22"/></div><div class="form-group"><label class="form-label">Annual salary (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 28000"/></div></div><div class="form-group"><label class="form-label">How much do you want to save? (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-amount" placeholder="e.g. 5000"/></div><div class="form-group"><label class="form-label">What's your main goal?</label><select class="form-select" id="f-goal"><option value="">Select a goal</option><option>Build an emergency fund</option><option>Saving for a house</option><option>General savings</option><option>Holiday or big purchase</option></select></div>`,prompt:d=>`You are SaveISA. Search for current best UK Cash ISA rates. User: age ${d.age}, salary £${d.salary}/year, saving £${d.amount}, goal: ${d.goal}. Return ONLY valid JSON: {"what_is_it":"2-3 sentences","what_to_look_for":[{"summary":"s","detail":"d"},{"summary":"s","detail":"d"},{"summary":"s","detail":"d"}],"top_picks":[{"name":"n","rate":"X.XX% AER","desc":"d","url":"u"},{"name":"n","rate":"X.XX% AER","desc":"d","url":"u"},{"name":"n","rate":"X.XX% AER","desc":"d","url":"u"}],"more_picks":[{"name":"n","rate":"X.XX% AER","desc":"d","url":"u"},{"name":"n","rate":"X.XX% AER","desc":"d","url":"u"},{"name":"n","rate":"X.XX% AER","desc":"d","url":"u"}]}`},
+    'lifetime-isa':{title:'Lifetime ISA',sub:'Tell us about your situation to find the right LISA for you.',resultsTitle:'Your Lifetime ISA options',fields:`<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 22"/></div><div class="form-group"><label class="form-label">Annual salary (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 28000"/></div></div><div class="form-group"><label class="form-label">How much can you save per year? (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-amount" placeholder="e.g. 2000"/></div><div class="form-group"><label class="form-label">Are you a first-time buyer?</label><select class="form-select" id="f-goal"><option value="">Select one</option><option>Yes, saving for my first home</option><option>Yes but not thinking about buying yet</option><option>No, already own a property</option></select></div>`,prompt:d=>`You are SaveISA. Search for best UK Lifetime ISA providers. User: age ${d.age}, salary £${d.salary}/year, saving £${d.amount}/year, situation: ${d.goal}. Return ONLY valid JSON: {"what_is_it":"2-3 sentences","what_to_look_for":[{"summary":"s","detail":"d"},{"summary":"s","detail":"d"},{"summary":"s","detail":"d"}],"top_picks":[{"name":"n","rate":"feature","desc":"d","url":"u"},{"name":"n","rate":"feature","desc":"d","url":"u"},{"name":"n","rate":"feature","desc":"d","url":"u"}],"more_picks":[{"name":"n","rate":"feature","desc":"d","url":"u"},{"name":"n","rate":"feature","desc":"d","url":"u"}]}`},
+    'emergency-fund':{title:'Emergency fund',sub:"Tell us about your situation and we'll calculate your exact target.",resultsTitle:'Your emergency fund target',fields:`<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 22"/></div><div class="form-group"><label class="form-label">Monthly take-home (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 1800"/></div></div><div class="form-group"><label class="form-label">Monthly essential costs — rent, bills, food (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-amount" placeholder="e.g. 1200"/></div><div class="form-group"><label class="form-label">How stable is your income?</label><select class="form-select" id="f-goal"><option value="">Select one</option><option>Very stable — permanent job</option><option>Fairly stable — fixed term contract</option><option>Variable — freelance or part time</option></select></div>`,prompt:d=>`You are SaveISA. User: age ${d.age}, monthly take-home £${d.salary}, essential costs £${d.amount}/month, income: ${d.goal}. Return ONLY valid JSON: {"what_is_it":"2-3 sentences","what_to_look_for":[{"summary":"How much to aim for","detail":"Calculate specific target based on their costs and stability"},{"summary":"Where to keep it","detail":"Easy-access savings — why liquidity beats rate here"},{"summary":"How to build it","detail":"Practical monthly saving tip"}],"top_picks":[{"name":"Target amount","rate":"£X,XXX","desc":"Based on their costs","url":""},{"name":"Monthly saving needed","rate":"£XXX/mo","desc":"To reach target in 12 months","url":""},{"name":"Best easy-access account","rate":"","desc":"Top pick right now","url":""}],"more_picks":[]}`},
+    'credit-cards':{title:'Credit cards',sub:"Tell us about your situation and we'll find the right first card for you.",resultsTitle:'Your credit card options',fields:`<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 22"/></div><div class="form-group"><label class="form-label">Annual salary (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 28000"/></div></div><div class="form-group"><label class="form-label">What do you want a credit card for?</label><select class="form-select" id="f-goal"><option value="">Select one</option><option>Build my credit score</option><option>0% spending on a big purchase</option><option>Everyday spending with rewards</option><option>Balance transfer from another card</option></select></div><div class="form-group"><label class="form-label">Do you have existing credit history?</label><select class="form-select" id="f-amount"><option value="">Select one</option><option>No credit history yet</option><option>Limited — a few months</option><option>Yes — 1 year or more</option></select></div>`,prompt:d=>`You are SaveISA. Search for best UK credit cards. User: age ${d.age}, salary £${d.salary}/year, goal: ${d.goal}, credit history: ${d.amount}. Return ONLY valid JSON: {"what_is_it":"2-3 sentences","what_to_look_for":[{"summary":"APR — the true cost","detail":"Explain APR and how to avoid paying it"},{"summary":"Your likely credit limit","detail":"What to expect as a first-time applicant"},{"summary":"Building your credit score","detail":"How responsible use builds credit history"}],"top_picks":[{"name":"n","rate":"X% APR","desc":"d","url":"u"},{"name":"n","rate":"X% APR","desc":"d","url":"u"},{"name":"n","rate":"X% APR","desc":"d","url":"u"}],"more_picks":[{"name":"n","rate":"X% APR","desc":"d","url":"u"},{"name":"n","rate":"X% APR","desc":"d","url":"u"}]}`},
+    'personal-loans':{title:'Personal loans',sub:"Tell us what you need and we'll show you the honest picture.",resultsTitle:'Personal loans explained',fields:`<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 22"/></div><div class="form-group"><label class="form-label">Annual salary (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 28000"/></div></div><div class="form-group"><label class="form-label">How much do you need to borrow? (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-amount" placeholder="e.g. 3000"/></div><div class="form-group"><label class="form-label">What's the loan for?</label><select class="form-select" id="f-goal"><option value="">Select one</option><option>Car</option><option>Home improvements</option><option>Debt consolidation</option><option>Holiday or wedding</option><option>Other</option></select></div>`,prompt:d=>`You are SaveISA. User: age ${d.age}, salary £${d.salary}/year, needs £${d.amount}, purpose: ${d.goal}. Be honest about total cost. Return ONLY valid JSON: {"what_is_it":"2-3 honest sentences","what_to_look_for":[{"summary":"Total repayment cost","detail":"Calculate realistic total repayment — not just monthly payment"},{"summary":"Representative vs actual APR","detail":"Only 51% get the advertised rate"},{"summary":"Is there a better option?","detail":"Honest alternatives to a loan"}],"top_picks":[{"name":"n","rate":"X% APR","desc":"include total repayment","url":"u"},{"name":"n","rate":"X% APR","desc":"d","url":"u"},{"name":"MoneySavingExpert loans","rate":"","desc":"Check eligibility without affecting your score","url":"https://www.moneysavingexpert.com/loans/"}],"more_picks":[]}`},
+    'student-loan':{title:'Student loan',sub:"Tell us about your loan so we can explain what it really means for you.",resultsTitle:'Your student loan explained',fields:`<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 22"/></div><div class="form-group"><label class="form-label">Annual salary (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 28000"/></div></div><div class="form-group"><label class="form-label">Which student loan plan?</label><select class="form-select" id="f-goal"><option value="">Select your plan</option><option>Plan 1 — started uni before 2012</option><option>Plan 2 — started uni 2012–2023</option><option>Plan 5 — started uni 2023 or later</option><option>Not sure</option></select></div><div class="form-group"><label class="form-label">Approximate total loan (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-amount" placeholder="e.g. 45000"/></div>`,prompt:d=>`You are SaveISA. User: age ${d.age}, salary £${d.salary}/year, plan: ${d.goal}, debt: £${d.amount}. Return ONLY valid JSON: {"what_is_it":"2-3 reassuring sentences","what_to_look_for":[{"summary":"Monthly repayment","detail":"Exact monthly repayment for their salary and plan"},{"summary":"Repayment threshold","detail":"Their threshold and what happens below it"},{"summary":"Will they repay in full?","detail":"Honest statistical assessment"}],"top_picks":[{"name":"Key takeaway","rate":"","desc":"Most important thing to understand","url":""},{"name":"Student Loans Company","rate":"","desc":"Check your balance","url":"https://www.gov.uk/repaying-your-student-loan"},{"name":"MoneySavingExpert","rate":"","desc":"Martin Lewis student loan guide","url":"https://www.moneysavingexpert.com/students/student-loans-tuition-fees-explained/"}],"more_picks":[]}`},
+    'payslip':{title:'First payslip',sub:"Tell us about your job and we'll decode exactly what's happening to your money.",resultsTitle:'Your payslip decoded',fields:`<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 22"/></div><div class="form-group"><label class="form-label">Annual salary (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 28000"/></div></div><div class="form-group"><label class="form-label">Workplace pension?</label><select class="form-select" id="f-goal"><option value="">Select one</option><option>Yes, I'm enrolled</option><option>No, I opted out</option><option>Not sure</option></select></div><div class="form-group"><label class="form-label">Student loan?</label><select class="form-select" id="f-amount"><option value="">Select one</option><option>Yes — Plan 2</option><option>Yes — Plan 5</option><option>Yes — Plan 1</option><option>No student loan</option></select></div>`,prompt:d=>`You are SaveISA. User earns £${d.salary}/year, pension: ${d.goal}, student loan: ${d.amount}. Use 2024/25 UK tax rates. Return ONLY valid JSON: {"what_is_it":"2-3 sentences with estimated monthly take-home","what_to_look_for":[{"summary":"Income tax","detail":"Tax band and exact monthly deduction"},{"summary":"National Insurance","detail":"NI rate and exact monthly deduction"},{"summary":"Pension and student loan","detail":"Monthly deductions for each if applicable"}],"top_picks":[{"name":"Gross monthly pay","rate":"£${Math.round(parseInt(d.salary)/12).toLocaleString()}","desc":"Before any deductions","url":""},{"name":"Total monthly deductions","rate":"£XXX","desc":"Tax + NI + pension + student loan","url":""},{"name":"Monthly take-home pay","rate":"£X,XXX","desc":"What lands in your bank account","url":""}],"more_picks":[]}`},
+    'mortgage':{title:'Mortgage basics',sub:"Tell us where you are and we'll give you an honest picture of what's possible.",resultsTitle:'Your mortgage picture',fields:`<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 25"/></div><div class="form-group"><label class="form-label">Annual salary (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 32000"/></div></div><div class="form-group"><label class="form-label">Deposit saved or saving (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-amount" placeholder="e.g. 15000"/></div><div class="form-group"><label class="form-label">Where are you in the process?</label><select class="form-select" id="f-goal"><option value="">Select one</option><option>Just starting to think about it</option><option>Actively saving for a deposit</option><option>Ready to buy in the next year</option></select></div>`,prompt:d=>`You are SaveISA. Search for current UK mortgage rates. User: age ${d.age}, salary £${d.salary}/year, deposit £${d.amount}, stage: ${d.goal}. Return ONLY valid JSON: {"what_is_it":"2-3 honest sentences","what_to_look_for":[{"summary":"How much can they borrow?","detail":"4x salary = £${(parseInt(d.salary)*4).toLocaleString()} plus deposit"},{"summary":"Deposit and LTV","detail":"Their deposit as % of a typical first home"},{"summary":"Monthly repayment estimate","detail":"Rough monthly cost at current rates"}],"top_picks":[{"name":"Estimated max property","rate":"£${(parseInt(d.salary)*4+parseInt(d.amount||0)).toLocaleString()}","desc":"Based on 4x salary plus deposit","url":""},{"name":"Deposit progress","rate":"X%","desc":"As % of a typical first home","url":""},{"name":"MoneyHelper calculator","rate":"","desc":"Official mortgage affordability tool","url":"https://www.moneyhelper.org.uk/en/homes/buying-a-home/mortgage-affordability-calculator"}],"more_picks":[]}`},
+    'auto-enrolment':{title:'Auto-enrolment',sub:"Tell us about your job and we'll explain exactly what's happening to your pension.",resultsTitle:'Your auto-enrolment explained',fields:`<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 22"/></div><div class="form-group"><label class="form-label">Annual salary (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 28000"/></div></div><div class="form-group"><label class="form-label">Are you currently enrolled?</label><select class="form-select" id="f-goal"><option value="">Select one</option><option>Yes, I'm enrolled</option><option>No, I opted out</option><option>I'm not sure</option><option>I'm self-employed</option></select></div><div class="form-group"><label class="form-label">Does your employer match contributions?</label><select class="form-select" id="f-amount"><option value="">Select one</option><option>Yes — I know the match</option><option>Yes — not sure of the %</option><option>No</option><option>Not sure</option></select></div>`,prompt:d=>`You are SavePension. User: age ${d.age}, salary £${d.salary}/year, enrolment status: ${d.goal}, employer match: ${d.amount}. Return ONLY valid JSON: {"what_is_it":"2-3 sentences","what_to_look_for":[{"summary":"Your contributions","detail":"Minimum 5% employee, calculated on their salary"},{"summary":"Employer contributions","detail":"Minimum 3% employer — free money they shouldn't leave"},{"summary":"Should they opt out?","detail":"Honest answer: almost never — explain why"}],"top_picks":[{"name":"Your monthly contribution","rate":"£XXX","desc":"5% of their salary","url":""},{"name":"Employer monthly add","rate":"£XXX","desc":"Free money on top","url":""},{"name":"PensionWise","rate":"","desc":"Free government pension guidance","url":"https://www.moneyhelper.org.uk/en/pensions-and-retirement/pension-wise"}],"more_picks":[]}`},
+    'salary-sacrifice':{title:'Salary sacrifice',sub:"Tell us about your pay and we'll show you exactly how much you could save.",resultsTitle:'Your salary sacrifice saving',fields:`<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 28"/></div><div class="form-group"><label class="form-label">Annual salary (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 35000"/></div></div><div class="form-group"><label class="form-label">Current pension contribution (%)</label><input class="form-input" type="number" inputmode="numeric" id="f-amount" placeholder="e.g. 5"/></div><div class="form-group"><label class="form-label">Does your employer offer salary sacrifice?</label><select class="form-select" id="f-goal"><option value="">Select one</option><option>Yes</option><option>Not sure</option><option>No</option></select></div>`,prompt:d=>`You are SavePension. User: age ${d.age}, salary £${d.salary}/year, pension contribution ${d.amount}%, salary sacrifice available: ${d.goal}. Calculate tax and NI savings precisely. Return ONLY valid JSON: {"what_is_it":"2-3 sentences","what_to_look_for":[{"summary":"How it works","detail":"Pre-tax vs post-tax contributions explained simply"},{"summary":"Tax saving","detail":"Exact annual tax saving for their salary and contribution rate"},{"summary":"NI saving","detail":"Exact NI saving — often overlooked"}],"top_picks":[{"name":"Annual tax saving","rate":"£XXX","desc":"Income tax saved per year","url":""},{"name":"Annual NI saving","rate":"£XXX","desc":"National Insurance saved","url":""},{"name":"Total annual saving","rate":"£XXX","desc":"Extra that stays in their pocket or pension","url":""}],"more_picks":[]}`},
+    'on-track':{title:'Am I on track?',sub:"Tell us about your pension and we'll give you an honest assessment.",resultsTitle:'Your pension progress',fields:`<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 28"/></div><div class="form-group"><label class="form-label">Annual salary (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 35000"/></div></div><div class="form-group"><label class="form-label">Estimated current pension pot (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-amount" placeholder="e.g. 8000"/></div><div class="form-group"><label class="form-label">When do you want to retire?</label><select class="form-select" id="f-goal"><option value="">Select one</option><option>Age 60</option><option>Age 65</option><option>Age 67 — State Pension age</option><option>Age 70+</option></select></div>`,prompt:d=>`You are SavePension. User: age ${d.age}, salary £${d.salary}/year, pot £${d.amount}, wants to retire: ${d.goal}. Return ONLY valid JSON: {"what_is_it":"2-3 honest sentences about their progress","what_to_look_for":[{"summary":"Where they should be","detail":"Rule of thumb: pot should be 1x salary by 30, 3x by 40, 6x by 50"},{"summary":"Are they on track?","detail":"Honest assessment of their current pot vs target"},{"summary":"What to do if behind","detail":"Practical steps — increase contributions, salary sacrifice, consolidate"}],"top_picks":[{"name":"Target pot size","rate":"£X,XXX,XXX","desc":"Estimated pot needed for their retirement age","url":""},{"name":"Current trajectory","rate":"£X,XXX,XXX","desc":"Projected pot at retirement on current contributions","url":""},{"name":"PensionBee tracker","rate":"","desc":"Track and manage all your pensions in one place","url":"https://www.pensionbee.com"}],"more_picks":[]}`},
+    'consolidate':{title:'Consolidate old pots',sub:"Tell us about your pensions and we'll explain your options.",resultsTitle:'Consolidating your pensions',fields:`<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 30"/></div><div class="form-group"><label class="form-label">Annual salary (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 38000"/></div></div><div class="form-group"><label class="form-label">How many pension pots do you have?</label><select class="form-select" id="f-goal"><option value="">Select one</option><option>2 pots</option><option>3–4 pots</option><option>5 or more</option><option>Not sure — probably lost some</option></select></div><div class="form-group"><label class="form-label">Total estimated value (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-amount" placeholder="e.g. 12000"/></div>`,prompt:d=>`You are SavePension. User: age ${d.age}, salary £${d.salary}/year, pots: ${d.goal}, total value £${d.amount}. Return ONLY valid JSON: {"what_is_it":"2-3 sentences","what_to_look_for":[{"summary":"Should they consolidate?","detail":"When it makes sense and when it doesn't — e.g. defined benefit pensions"},{"summary":"How to find lost pots","detail":"Pension Tracing Service — free government tool"},{"summary":"What to look for in a provider","detail":"Fees, investment options, and app quality"}],"top_picks":[{"name":"PensionBee","rate":"","desc":"Simple consolidation, good app, flat fees","url":"https://www.pensionbee.com"},{"name":"Pension Tracing Service","rate":"","desc":"Find lost pensions for free","url":"https://www.gov.uk/find-pension-contact-details"},{"name":"Penfold","rate":"","desc":"Good for self-employed and freelancers","url":"https://getpenfold.com"}],"more_picks":[]}`},
+    'state-pension':{title:'State Pension',sub:"Tell us about your NI record and we'll explain what you're on track for.",resultsTitle:'Your State Pension picture',fields:`<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 28"/></div><div class="form-group"><label class="form-label">Annual salary (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 32000"/></div></div><div class="form-group"><label class="form-label">How many NI qualifying years do you have?</label><input class="form-input" type="number" inputmode="numeric" id="f-amount" placeholder="e.g. 6"/></div><div class="form-group"><label class="form-label">Employment status</label><select class="form-select" id="f-goal"><option value="">Select one</option><option>Employed</option><option>Self-employed</option><option>Both at times</option></select></div>`,prompt:d=>`You are SavePension. User: age ${d.age}, salary £${d.salary}/year, NI years: ${d.amount}, status: ${d.goal}. Return ONLY valid JSON: {"what_is_it":"2-3 sentences about State Pension for their situation","what_to_look_for":[{"summary":"How many NI years they need","detail":"35 years for full State Pension, 10 minimum for any — they have ${d.amount}"},{"summary":"When they'll get it","detail":"Current State Pension age is 66, rising to 67 by 2028"},{"summary":"Is it enough to live on?","detail":"Honest answer: £221/week is below average rent — they need private pension too"}],"top_picks":[{"name":"Years still needed","rate":"${Math.max(0,35-parseInt(d.amount||0))} years","desc":"To qualify for full State Pension","url":""},{"name":"Check your NI record","rate":"","desc":"See your full record on HMRC","url":"https://www.gov.uk/check-state-pension"},{"name":"Buy missing NI years","rate":"","desc":"Fill gaps before the April 2025 deadline","url":"https://www.gov.uk/voluntary-national-insurance-contributions"}],"more_picks":[]}`}
+  };
+
+  function selectTopic(t){
+    currentTopic=t;
+    const cfg=topics[t];
+    document.getElementById('form-title').textContent=cfg.title;
+    document.getElementById('wit-text').textContent=witDescriptions[t]||'';
+    document.getElementById('form-sub').textContent=cfg.sub;
+    document.getElementById('form-fields').innerHTML=cfg.fields;
+    document.getElementById('error-box').style.display='none';
+    showScreen('screen-form');
+    document.getElementById('back-btn').classList.add('visible');
+    window.scrollTo(0,0);
+  }
+
+  async function submitForm(){
+    const age=document.getElementById('f-age')?.value||'';
+    const salary=document.getElementById('f-salary')?.value||'';
+    const goal=document.getElementById('f-goal')?.value||'';
+    const amount=document.getElementById('f-amount')?.value||'';
+    if(!age||!salary||!goal){const e=document.getElementById('error-box');e.textContent='Please fill in all fields before continuing.';e.style.display='block';return;}
+    document.getElementById('error-box').style.display='none';
+    showScreen('screen-loading');
+    document.getElementById('back-btn').classList.remove('visible');
+    window.scrollTo(0,0);
+    ['step1','step2','step3','step4'].forEach((s,i)=>setTimeout(()=>document.getElementById(s).classList.add('visible'),i*900));
+    try{
+      const res=await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:topics[currentTopic].prompt({age,salary,goal,amount})}]})});
+      const result=await res.json();
+      if(!res.ok)throw new Error(result.error?.message||'API error');
+      const raw=result.content.filter(b=>b.type==='text').map(b=>b.text).join('');
+      const data=JSON.parse(raw.replace(/```json|```/g,'').trim());
+      renderResults(data);
+      document.getElementById('results-title').textContent=topics[currentTopic].resultsTitle;
+      showScreen('screen-results');
+      document.getElementById('back-btn').classList.add('visible');
+      window.scrollTo(0,0);
+    }catch(e){
+      const eb=document.getElementById('error-box');
+      eb.textContent='Something went wrong — please try again.';
+      eb.style.display='block';
       showScreen('screen-form');
-      document.getElementById('back-btn').style.display = 'block';
-      window.scrollTo(0, 0);
+      document.getElementById('back-btn').classList.add('visible');
     }
+  }
 
-    async function submitForm() {
-      const age    = document.getElementById('f-age')    ? document.getElementById('f-age').value    : '';
-      const salary = document.getElementById('f-salary') ? document.getElementById('f-salary').value : '';
-      const goal   = document.getElementById('f-goal')   ? document.getElementById('f-goal').value   : '';
-      const amount = document.getElementById('f-amount') ? document.getElementById('f-amount').value : '';
-
-      if (!age || !salary || !goal) {
-        const eb = document.getElementById('error-box');
-        eb.textContent = 'Please fill in all fields before continuing.';
-        eb.style.display = 'block';
-        return;
-      }
-
-      document.getElementById('error-box').style.display = 'none';
-      showScreen('screen-loading');
-      document.getElementById('back-btn').style.display = 'none';
-      window.scrollTo(0, 0);
-
-      ['step1','step2','step3','step4'].forEach((s, i) => {
-        setTimeout(() => document.getElementById(s).classList.add('visible'), i * 900);
-      });
-
-      try {
-        const response = await fetch('/api/ask', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
-            max_tokens: 1000,
-            tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-            messages: [{ role: 'user', content: topics[currentTopic].prompt({ age, salary, goal, amount }) }]
-          })
-        });
-
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.error?.message || 'API error');
-
-        const text = result.content.filter(b => b.type === 'text').map(b => b.text).join('');
-        document.getElementById('results-title').textContent = topics[currentTopic].resultsTitle;
-        document.getElementById('ai-response-content').innerHTML = text;
-        showScreen('screen-results');
-        document.getElementById('back-btn').style.display = 'block';
-        window.scrollTo(0, 0);
-
-      } catch (err) {
-        const eb = document.getElementById('error-box');
-        eb.textContent = 'Something went wrong. Please try again.';
-        eb.style.display = 'block';
-        showScreen('screen-form');
-        document.getElementById('back-btn').style.display = 'block';
-      }
+  function renderResults(data){
+    const s=isDark?'#a8e040':'#2d6a0f';
+    const ch=`<svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M2 1.5l3 2.5-3 2.5" stroke="${s}" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    let html=`<div class="card"><div class="card-header"><div class="card-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7 2v10" stroke="${s}" stroke-width="1.3" stroke-linecap="round"/></svg></div><span class="card-label">What to look for</span></div><ul class="expand-list">${data.what_to_look_for.map(i=>`<li class="expand-item"><button class="expand-trigger" onclick="toggleExpand(this)"><div class="expand-arrow">${ch}</div><span class="expand-summary">${i.summary}</span></button><div class="expand-detail">${i.detail}</div></li>`).join('')}</ul></div>`;
+    html+=`<span class="section-results-label">Top picks right now</span>`;
+    data.top_picks.forEach((p,i)=>{
+      const top=i===0;
+      html+=`<div class="provider-card ${top?'top':''}">`+(top?'<div class="provider-top-badge">Best match for you</div>':'')+`<div class="provider-body"><div class="provider-row"><span class="provider-name">${p.name}</span>${p.rate?`<span class="provider-rate">${p.rate}</span>`:''}</div><p class="provider-desc">${p.desc}</p>${p.url?`<a class="provider-btn ${top?'':'outline'}" href="${p.url}" target="_blank" rel="noopener noreferrer">Open account →</a>`:''}</div></div>`;
+    });
+    if(data.more_picks?.length){
+      html+=`<button class="more-btn" id="more-btn" onclick="loadMore()"><div class="spinner"></div><span class="btn-label">Compare more options →</span></button>`;
+      html+=`<div class="more-providers" id="more-providers"><span class="section-results-label">More options</span>${data.more_picks.map(p=>`<div class="provider-card"><div class="provider-body"><div class="provider-row"><span class="provider-name">${p.name}</span>${p.rate?`<span class="provider-rate">${p.rate}</span>`:''}</div><p class="provider-desc">${p.desc}</p>${p.url?`<a class="provider-btn outline" href="${p.url}" target="_blank" rel="noopener noreferrer">Open account →</a>`:''}</div></div>`).join('')}<div class="market-link-wrap"><a href="https://www.moneysupermarket.com" target="_blank" rel="noopener noreferrer" class="market-link">See the full market comparison on MoneySuperMarket →</a></div></div>`;
     }
+    document.getElementById('results-content').innerHTML=html;
+  }
 
-    function showScreen(id) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-    }
-
-    function goBack() {
-      const active = document.querySelector('.screen.active').id;
-      if (active === 'screen-form') { showScreen('screen-topics'); document.getElementById('back-btn').style.display = 'none'; }
-      else if (active === 'screen-results') showScreen('screen-form');
-      window.scrollTo(0, 0);
-    }
-
-    function restart() {
-      document.querySelectorAll('.loading-step').forEach(s => s.classList.remove('visible'));
-      showScreen('screen-topics');
-      document.getElementById('back-btn').style.display = 'none';
-      window.scrollTo(0, 0);
-    }
-  </script>
+  function toggleExpand(btn){btn.classList.toggle('open');btn.nextElementSibling.classList.toggle('open');}
+  function loadMore(){const b=document.getElementById('more-btn');b.classList.add('loading');setTimeout(()=>{b.style.display='none';document.getElementById('more-providers').classList.add('open');},900);}
+  function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+  function goBack(){
+    const a=document.querySelector('.screen.active').id;
+    if(a==='screen-form'){showScreen(currentProduct==='isa'?'screen-topics':'screen-pension');document.getElementById('back-btn').classList.remove('visible');}
+    else if(a==='screen-results')showScreen('screen-form');
+    window.scrollTo(0,0);
+  }
+  function restart(){
+    document.querySelectorAll('.loading-step').forEach(s=>s.classList.remove('visible'));
+    showScreen(currentProduct==='isa'?'screen-topics':'screen-pension');
+    document.getElementById('back-btn').classList.remove('visible');
+    window.scrollTo(0,0);
+  }
+</script>
 </body>
 </html>
