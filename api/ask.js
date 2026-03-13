@@ -18,7 +18,7 @@ Use 2024/25 UK tax rates. Be specific with figures. Speak directly to the user.`
 
     const body = {
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 600,
+      max_tokens: 1200,
       system,
       messages: [{ role: 'user', content: prompt }],
       stream: true,
