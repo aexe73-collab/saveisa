@@ -719,12 +719,16 @@
     // Never show buttons for info-only topics
     if(infoOnlyTopics.has(currentTopic)) return '';
     if(!providerName) return aiUrl||'';
-    const key = providerName.toLowerCase();
+    const key = providerName.toLowerCase()
+      .replace(/\s*(isa|cash isa|lifetime isa|lisa|credit card|savings|account|saver|bank|card|loan|pension|invest|stocks|shares)\s*/g,' ')
+      .trim();
+    console.log('getLink checking:', providerName, '->', key);
     for(const [fragment, url] of Object.entries(affiliateLinks)){
       if(key.includes(fragment)) return url;
     }
     // No match — use AI url only if it looks like a real URL
     if(aiUrl && aiUrl.startsWith('http') && aiUrl.length > 10) return aiUrl;
+    console.log('getLink: no match for', providerName);
     return '';
   }
 
