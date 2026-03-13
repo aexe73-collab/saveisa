@@ -865,10 +865,40 @@
     const s = cleaned.indexOf('{');
     const e = cleaned.lastIndexOf('}');
     if(s >= 0 && e > s) cleaned = cleaned.slice(s, e+1);
+    // Try direct parse first
+    try { return JSON.parse(cleaned); } catch(_){}
+    // JSON truncated — try to repair by closing open arrays/objects
     try {
-      return JSON.parse(cleaned);
+      let depth = 0, inStr = false, escaped = false;
+      for(let i=0;i<cleaned.length;i++){
+        const c = cleaned[i];
+        if(escaped){escaped=false;continue;}
+        if(c==='\\'){escaped=true;continue;}
+        if(c==='"'){inStr=!inStr;continue;}
+        if(inStr) continue;
+        if(c==='{' || c==='[') depth++;
+        if(c==='}' || c===']') depth--;
+      }
+      // Close any open strings/arrays/objects
+      let repaired = cleaned.replace(/,\s*$/, ''); // trailing comma
+      if(inStr) repaired += '"';
+      // Close open arrays then objects
+      const stack = [];
+      inStr = false; escaped = false;
+      for(let i=0;i<repaired.length;i++){
+        const c = repaired[i];
+        if(escaped){escaped=false;continue;}
+        if(c==='\\'){escaped=true;continue;}
+        if(c==='"'){inStr=!inStr;continue;}
+        if(inStr) continue;
+        if(c==='{') stack.push('}');
+        if(c==='[') stack.push(']');
+        if(c==='}' || c===']') stack.pop();
+      }
+      while(stack.length) repaired += stack.pop();
+      return JSON.parse(repaired);
     } catch(err) {
-      console.error('parseJSON failed. Input was:', JSON.stringify(cleaned.slice(0,500)));
+      console.error('parseJSON failed. Input:', JSON.stringify(cleaned.slice(0,300)));
       throw err;
     }
   }
