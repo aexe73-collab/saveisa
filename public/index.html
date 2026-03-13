@@ -783,6 +783,11 @@
 
   function renderResults(data){
     console.log('renderResults data:', JSON.stringify(data));
+    // Guard against missing fields from Haiku
+    data = data || {};
+    data.what_to_look_for = data.what_to_look_for || [];
+    data.top_picks = data.top_picks || [];
+    data.more_picks = data.more_picks || [];
     // what_is_it intro card
     let html = '';
     if(data.what_is_it){
