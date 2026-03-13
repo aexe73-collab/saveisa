@@ -742,13 +742,20 @@
   function buildWhatToLookFor(items){
     const validItems = (items||[]).filter(i=>i&&i.summary&&i.summary.trim().length>1);
     if(!validItems.length) return '';
-    let html = '<div class="card" style="margin-bottom:1rem;">';
-    html += '<div class="card-header"><span class="card-label">What to look for</span></div>';
-    validItems.forEach(item => {
-      html += '<div style="padding:0.5rem 0;border-bottom:1px solid var(--border);">';
-      html += '<div style="font-size:14px;font-weight:500;color:var(--text-primary);margin-bottom:0.3rem;">&#10003; ' + (item.summary||'') + '</div>';
-      if(item.detail && item.detail.trim() && item.detail !== item.summary) {
-        html += '<div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">' + item.detail + '</div>';
+    const s = isDark?'#a8e040':'#2d6a0f';
+    let html = '<div class="card" style="margin-bottom:1rem;padding:0;">';
+    html += '<div class="card-header" style="padding:0.85rem 1rem 0.5rem;">';
+    html += '<div class="card-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7 2v10" stroke="'+s+'" stroke-width="1.3" stroke-linecap="round"/></svg></div>';
+    html += '<span class="card-label">What to look for</span></div>';
+    validItems.forEach((item, i) => {
+      const last = i === validItems.length - 1;
+      html += '<div style="padding:0.65rem 1rem' + (last?'':';border-bottom:1px solid var(--border)') + '">';
+      html += '<div style="display:flex;align-items:flex-start;gap:0.5rem;margin-bottom:' + (item.detail&&item.detail!==item.summary?'0.25rem':'0') + '">';
+      html += '<span style="color:'+s+';font-size:13px;font-weight:600;flex-shrink:0;margin-top:1px;">&#10003;</span>';
+      html += '<span style="font-size:14px;font-weight:500;color:var(--text-primary);">' + (item.summary||'') + '</span>';
+      html += '</div>';
+      if(item.detail && item.detail.trim() && item.detail.trim() !== item.summary.trim()) {
+        html += '<div style="font-size:13px;color:var(--text-secondary);line-height:1.6;padding-left:1.3rem;">' + item.detail + '</div>';
       }
       html += '</div>';
     });
