@@ -428,7 +428,7 @@
     showScreen('screen-loading');
     document.getElementById('back-btn').classList.remove('visible');
     window.scrollTo(0,0);
-    ['step1','step2','step3','step4'].forEach((s,i)=>setTimeout(()=>document.getElementById(s).classList.add('visible'),i*900));
+    ['step1','step2','step3','step4'].forEach((s,i)=>setTimeout(()=>document.getElementById(s)?.classList.add('visible'),i*900));
     try{
       const promptText = topics[currentTopic].prompt({age,salary,goal,amount,priority:selectedPriority});
 
@@ -444,15 +444,22 @@
         return;
       }
 
-      const res = await fetch('/api/ask',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
+      let bodyStr;
+      try {
+        bodyStr = JSON.stringify({
           topic: currentTopic,
           priority: selectedPriority,
           age, salary, goal, amount,
           prompt: promptText
-        })
+        });
+      } catch(jsonErr) {
+        console.error('JSON.stringify failed:', jsonErr.message, 'promptText sample:', promptText.slice(0,200));
+        throw jsonErr;
+      }
+      const res = await fetch('/api/ask',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: bodyStr
       });
 
       if(!res.ok){
