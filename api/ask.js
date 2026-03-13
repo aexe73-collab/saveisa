@@ -7,12 +7,39 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { topic, priority, prompt, ...rest } = req.body;
+    const { prompt } = req.body;
+
+    const system = `You are a UK financial information assistant for SaveISA, a free tool helping 18-24 year olds understand money.
+
+CRITICAL: Respond with ONLY a valid JSON object. No preamble, no markdown, no code fences. Start with { and end with }.
+
+Always use this exact structure:
+{
+  "what_is_it": "2-3 plain English sentences summarising the key insight for this user",
+  "what_to_look_for": [
+    {"summary": "Short title", "detail": "1-2 sentence explanation"},
+    {"summary": "Short title", "detail": "1-2 sentence explanation"},
+    {"summary": "Short title", "detail": "1-2 sentence explanation"}
+  ],
+  "top_picks": [
+    {"name": "Provider or concept name", "rate": "Key figure e.g. 5.1% AER or £2,173/mo", "desc": "Why this matters for this user", "url": "https://...or empty"},
+    {"name": "Provider or concept name", "rate": "Key figure", "desc": "Why this matters", "url": ""},
+    {"name": "Provider or concept name", "rate": "Key figure", "desc": "Why this matters", "url": ""}
+  ],
+  "more_picks": []
+}
+
+Rules:
+- Use web search for live UK rates and current provider offers
+- All figures must be accurate for 2024/25 tax year
+- Speak directly to the user, not about them
+- For info topics (payslip, student loan etc) top_picks should be key facts/figures, url can be empty
+- Keep desc fields under 20 words each`;
 
     const body = {
       model: 'claude-sonnet-4-5',
-      max_tokens: 1500,
-      system: 'You are a UK financial information assistant. You MUST respond with ONLY a valid JSON object — no preamble, no explanation, no markdown, no code fences. Your entire response must be parseable by JSON.parse(). Start your response with { and end with }. Never write sentences before or after the JSON.',
+      max_tokens: 800,
+      system,
       tools: [{ type: 'web_search_20250305', name: 'web_search' }],
       messages: [{ role: 'user', content: prompt }],
       stream: true,
