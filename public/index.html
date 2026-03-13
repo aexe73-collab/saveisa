@@ -465,7 +465,7 @@
       // Handle cached (non-streaming) response
       if(isCached){
         const result = await res.json();
-        const raw = result.content[0].text;
+        const raw = result.content?.[0]?.text || '';
         const data = parseJSON(raw);
         renderResults(data);
         document.getElementById('results-title').textContent=topics[currentTopic].resultsTitle;
@@ -798,8 +798,13 @@
     let cleaned = raw.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
     const s = cleaned.indexOf('{');
     const e = cleaned.lastIndexOf('}');
-    if(s > 0) cleaned = cleaned.slice(s, e+1);
-    return JSON.parse(cleaned);
+    if(s >= 0 && e > s) cleaned = cleaned.slice(s, e+1);
+    try {
+      return JSON.parse(cleaned);
+    } catch(err) {
+      console.error('parseJSON failed. Input was:', JSON.stringify(cleaned.slice(0,500)));
+      throw err;
+    }
   }
 
   // ---------------------------------------------------------------
@@ -822,7 +827,7 @@
       body:JSON.stringify({topic:t, priority:topicPriorities[t]?.[0]||'', age:'25', salary:'30000', goal:'general', amount:'5000', prompt:promptText})
     }).then(r=>{
       if(r.headers.get('X-Cache')==='HIT') return r.json().then(d=>{
-        prefetchCache[key] = parseJSON(d.content[0].text);
+        try{ prefetchCache[key] = parseJSON(d.content[0].text); }catch(e){ console.warn('Prefetch parse failed:', e.message); }
         console.log('Prefetched (cached):', t);
       });
       // Don't consume the stream for prefetch — just warm the server cache
