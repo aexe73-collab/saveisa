@@ -7,10 +7,10 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    // Override model and tools to ensure correct versions
     const body = {
       ...req.body,
       model: 'claude-sonnet-4-5',
+      system: 'You are a UK financial information assistant. You MUST respond with ONLY a valid JSON object — no preamble, no explanation, no markdown, no code fences. Your entire response must be parseable by JSON.parse(). Start your response with { and end with }. Never write sentences before or after the JSON.',
       tools: [{ type: 'web_search_20250305', name: 'web_search' }]
     };
 
@@ -27,7 +27,6 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    // Log errors server-side for debugging
     if (!response.ok) {
       console.error('Anthropic API error:', JSON.stringify(data));
     }
