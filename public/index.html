@@ -313,15 +313,12 @@
     <button class="submit-btn" onclick="submitForm()">Find my best options</button>
   </div>
 
-  <!-- LOADING -->
+  <!-- LOADING / STREAMING -->
   <div class="screen" id="screen-loading">
     <div class="loading">
-      <div class="loading-spinner"></div>
-      <p class="loading-text">Searching for the best options for you...</p>
-      <div class="loading-step" id="step1">Analysing your situation</div>
-      <div class="loading-step" id="step2">Searching live rates</div>
-      <div class="loading-step" id="step3">Comparing top providers</div>
-      <div class="loading-step" id="step4">Preparing your recommendation</div>
+      <div class="loading-spinner" id="loading-spinner"></div>
+      <p class="loading-text" id="loading-status">Searching live rates...</p>
+      <div id="stream-preview" style="display:none;margin-top:1.5rem;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.25rem;font-size:13px;color:var(--text-secondary);line-height:1.6;max-height:200px;overflow:hidden;"></div>
     </div>
   </div>
 
@@ -429,27 +426,95 @@
     window.scrollTo(0,0);
     ['step1','step2','step3','step4'].forEach((s,i)=>setTimeout(()=>document.getElementById(s).classList.add('visible'),i*900));
     try{
-      const res=await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1500,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:topics[currentTopic].prompt({age,salary,goal,amount,priority:selectedPriority})}]})});
-      const result=await res.json();
-      if(!res.ok){
-        console.error('API error response:', JSON.stringify(result));
-        throw new Error(result.error?.message||'API error: '+res.status);
+      const promptText = topics[currentTopic].prompt({age,salary,goal,amount,priority:selectedPriority});
+
+      // Check prefetch cache first
+      const pfKey = currentTopic+'|'+(selectedPriority||'');
+      if(prefetchCache[pfKey]){
+        console.log('Prefetch hit:', pfKey);
+        renderResults(prefetchCache[pfKey]);
+        document.getElementById('results-title').textContent=topics[currentTopic].resultsTitle;
+        showScreen('screen-results');
+        document.getElementById('back-btn').classList.add('visible');
+        window.scrollTo(0,0);
+        return;
       }
-      console.log('API response:', JSON.stringify(result).slice(0,300));
-      const raw=result.content.filter(b=>b.type==='text').map(b=>b.text).join('');
-      console.log('Raw text:', raw.slice(0,500));
-      // Strip markdown fences if present
-      let cleaned=raw.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
-      // If model added prose before the JSON, extract just the JSON object
-      const jsonStart=cleaned.indexOf('{');
-      const jsonEnd=cleaned.lastIndexOf('}');
-      if(jsonStart>0) cleaned=cleaned.slice(jsonStart,jsonEnd+1);
-      const data=JSON.parse(cleaned);
-      renderResults(data);
+
+      const res = await fetch('/api/ask',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          topic: currentTopic,
+          priority: selectedPriority,
+          age, salary, goal, amount,
+          prompt: promptText
+        })
+      });
+
+      if(!res.ok){
+        const err = await res.json();
+        throw new Error(err.error?.message||'API error: '+res.status);
+      }
+
+      const isCached = res.headers.get('X-Cache')==='HIT';
+
+      // Handle cached (non-streaming) response
+      if(isCached){
+        const result = await res.json();
+        const raw = result.content[0].text;
+        const data = parseJSON(raw);
+        renderResults(data);
+        document.getElementById('results-title').textContent=topics[currentTopic].resultsTitle;
+        showScreen('screen-results');
+        document.getElementById('back-btn').classList.add('visible');
+        window.scrollTo(0,0);
+        return;
+      }
+
+      // Streaming response — show results screen immediately and render as chunks arrive
       document.getElementById('results-title').textContent=topics[currentTopic].resultsTitle;
+      document.getElementById('results-content').innerHTML='<div class="loading" style="padding:1.5rem 0"><div class="loading-spinner"></div><p class="loading-text" id="stream-status">Getting your results...</p></div>';
       showScreen('screen-results');
       document.getElementById('back-btn').classList.add('visible');
       window.scrollTo(0,0);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let streamedText = '';
+      const statusEl = document.getElementById('stream-status');
+
+      while(true){
+        const {done, value} = await reader.read();
+        if(done) break;
+        buffer += decoder.decode(value, {stream:true});
+        const lines = buffer.split('\n');
+        buffer = lines.pop(); // keep incomplete line
+
+        for(const line of lines){
+          if(!line.startsWith('data: ')) continue;
+          const data = line.slice(6).trim();
+          if(data==='[DONE]'){
+            // Parse and render final accumulated text
+            try{
+              const parsed = parseJSON(streamedText);
+              renderResults(parsed);
+            }catch(e){
+              document.getElementById('results-content').innerHTML='<p style="color:var(--text-secondary);padding:1rem">Something went wrong — please go back and try again.</p>';
+            }
+            break;
+          }
+          try{
+            const event = JSON.parse(data);
+            if(event.text){
+              streamedText += event.text;
+              // Update status with progress hints
+              if(streamedText.includes('"what_to_look_for"') && statusEl) statusEl.textContent='Analysing your situation...';
+              if(streamedText.includes('"top_picks"') && statusEl) statusEl.textContent='Finding best options...';
+            }
+          }catch(e){}
+        }
+      }
     }catch(e){
       console.error('Submit error:', e.message, e.stack);
       const eb=document.getElementById('error-box');
@@ -604,6 +669,54 @@
   }
 
   // ---------------------------------------------------------------
+  // HELPERS
+  // ---------------------------------------------------------------
+  function parseJSON(raw){
+    let cleaned = raw.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
+    const s = cleaned.indexOf('{');
+    const e = cleaned.lastIndexOf('}');
+    if(s > 0) cleaned = cleaned.slice(s, e+1);
+    return JSON.parse(cleaned);
+  }
+
+  // ---------------------------------------------------------------
+  // PREFETCH CACHE — start fetching when user hovers a topic card
+  // ---------------------------------------------------------------
+  const prefetchCache = {};
+  const prefetchInFlight = new Set();
+
+  function prefetchTopic(t){
+    const key = t+'|'; // no priority known yet — prefetch with default
+    if(prefetchCache[key] || prefetchInFlight.has(key)) return;
+    prefetchInFlight.add(key);
+    const cfg = topics[t];
+    if(!cfg) return;
+    // Use placeholder values for prefetch — real values override on submit
+    const promptText = cfg.prompt({age:'25',salary:'30000',goal:'general',amount:'5000',priority:topicPriorities[t]?.[0]||''});
+    fetch('/api/ask',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({topic:t, priority:topicPriorities[t]?.[0]||'', age:'25', salary:'30000', goal:'general', amount:'5000', prompt:promptText})
+    }).then(r=>{
+      if(r.headers.get('X-Cache')==='HIT') return r.json().then(d=>{
+        prefetchCache[key] = parseJSON(d.content[0].text);
+        console.log('Prefetched (cached):', t);
+      });
+      // Don't consume the stream for prefetch — just warm the server cache
+      prefetchInFlight.delete(key);
+    }).catch(()=>prefetchInFlight.delete(key));
+  }
+
+  // Attach hover prefetch to topic cards after DOM ready
+  document.addEventListener('DOMContentLoaded', ()=>{
+    document.querySelectorAll('.topic-card').forEach(card=>{
+      const onclick = card.getAttribute('onclick')||'';
+      const match = onclick.match(/selectTopic\('([^']+)'\)/);
+      if(match) card.addEventListener('mouseenter', ()=>prefetchTopic(match[1]), {once:true});
+    });
+  });
+
+  // ---------------------------------------------------------------
   // SESSION MEMORY — saves form values per topic for this session
   // ---------------------------------------------------------------
   const sessionMemory = {};  // { topicKey: { age, salary, goal, amount } }
@@ -638,23 +751,26 @@
   }
 
   function reloadMemory(){
-    // Find the first saved topic if current topic has no memory
-    const targetTopic = (currentTopic && sessionMemory[currentTopic])
-      ? currentTopic
-      : Object.keys(sessionMemory)[0];
-    if(!targetTopic) return;
-    // Navigate to that topic's form, then fill in values
-    selectTopic(targetTopic);
-    // Use setTimeout to let the DOM update before filling fields
-    setTimeout(()=>{
-      const d = sessionMemory[targetTopic];
-      if(!d) return;
-      const age = document.getElementById('f-age');
-      const salary = document.getElementById('f-salary');
+    // Find any saved memory to pull common fields from
+    const keys = Object.keys(sessionMemory);
+    if(!keys.length) return;
+
+    // Use current topic's memory if available, else first saved topic
+    // Only for common fields — we always stay on current screen
+    const source = sessionMemory[currentTopic] || sessionMemory[keys[0]];
+    if(!source) return;
+
+    // Always fill common fields (age + salary) from any saved topic
+    const age = document.getElementById('f-age');
+    const salary = document.getElementById('f-salary');
+    if(age && source.age) age.value = source.age;
+    if(salary && source.salary) salary.value = source.salary;
+
+    // Only fill topic-specific fields if we have memory for THIS exact topic
+    if(sessionMemory[currentTopic]){
+      const d = sessionMemory[currentTopic];
       const goal = document.getElementById('f-goal');
       const amount = document.getElementById('f-amount');
-      if(age && d.age) age.value = d.age;
-      if(salary && d.salary) salary.value = d.salary;
       if(goal && d.goal) goal.value = d.goal;
       if(amount && d.amount) amount.value = d.amount;
       // Restore priority chip selection
@@ -664,7 +780,14 @@
           c.classList.toggle('selected', c.textContent.trim()===d.priority);
         });
       }
-    }, 50);
+    }
+
+    // Update bar label to confirm what was loaded
+    const label = document.getElementById('memory-label');
+    if(label){
+      const filled = sessionMemory[currentTopic] ? 'All details reloaded' : 'Age & salary reloaded from your session';
+      label.textContent = filled;
+    }
   }
 
   function clearMemory(){
