@@ -622,13 +622,16 @@
             if(event.searching && statusEl) statusEl.textContent='Searching for live rates...';
             if(event.error) throw new Error(event.error);
             if(event.done){
-              // Final render with full parsed JSON to catch anything missed
               try{
                 const parsed = parseJSON(streamedText);
+                // Always do final render — it now includes what_is_it + WTLF + cards
                 renderResults(parsed);
               }catch(e){
-                // Progressive render already showed content — just log
-                console.warn('Final parse failed, progressive render already shown');
+                console.warn('Final parse failed:', e.message);
+                // If progressive render already showed something, leave it
+                if(!rendered.wit){
+                  document.getElementById('results-content').innerHTML='<p style="color:var(--text-secondary);padding:1rem">Something went wrong — please go back and try again.</p>';
+                }
               }
             }
           }catch(e){ if(e.message && !e.message.includes('JSON')) throw e; }
