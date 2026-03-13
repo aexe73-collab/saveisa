@@ -670,6 +670,12 @@
 
     // Credit cards
     'barclaycard':        'https://www.barclaycard.co.uk',        // REPLACE with Awin URL
+    'hsbc':               'https://www.hsbc.co.uk',                 // REPLACE
+    'lloyds':             'https://www.lloydsbank.com',             // REPLACE
+    'natwest':            'https://www.natwest.com',                // REPLACE
+    'tesco':              'https://www.tescobank.com',              // REPLACE
+    'sainsbury':          'https://www.sainsburysbank.co.uk',       // REPLACE
+    'mbna':               'https://www.mbna.co.uk',                 // REPLACE
     'aqua':               'https://www.aquacard.co.uk',           // REPLACE
     'capital one':        'https://www.capitalone.co.uk',         // REPLACE
     'amex':               'https://www.americanexpress.com/uk',   // REPLACE
@@ -736,7 +742,8 @@
   function buildWhatToLookFor(items){
     const s=isDark?'#a8e040':'#2d6a0f';
     const ch=`<svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M2 1.5l3 2.5-3 2.5" stroke="${s}" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-    return `<div class="card"><div class="card-header"><div class="card-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7 2v10" stroke="${s}" stroke-width="1.3" stroke-linecap="round"/></svg></div><span class="card-label">What to look for</span></div><ul class="expand-list">${(items||[]).map(i=>`<li class="expand-item"><button class="expand-trigger" onclick="toggleExpand(this)"><div class="expand-arrow">${ch}</div><span class="expand-summary">${i.summary||''}</span></button><div class="expand-detail">${i.detail||i.summary||''}</div></li>`).join('')}</ul></div>`;
+    const validItems = (items||[]).filter(i=>i.summary&&i.summary.trim());
+    return `<div class="card"><div class="card-header"><div class="card-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7 2v10" stroke="${s}" stroke-width="1.3" stroke-linecap="round"/></svg></div><span class="card-label">What to look for</span></div><ul class="expand-list">${validItems.map(i=>`<li class="expand-item"><button class="expand-trigger open" onclick="toggleExpand(this)"><div class="expand-arrow open">${ch}</div><span class="expand-summary">${i.summary||''}</span></button><div class="expand-detail open">${i.detail||i.summary||''}</div></li>`).join('')}</ul></div>`;
   }
 
   function renderResults(data){
