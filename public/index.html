@@ -423,12 +423,17 @@
     const amount=document.getElementById('f-amount')?.value||'';
     const goalRequired = !['credit-cards','lifetime-isa'].includes(currentTopic);
     if(!age||!salary||(goalRequired&&!goal)){const e=document.getElementById('error-box');e.textContent='Please fill in all fields before continuing.';e.style.display='block';return;}
+    console.log('STEP 1: saving memory');
     saveMemory(currentTopic,{age,salary,goal,amount,priority:selectedPriority});
+    console.log('STEP 2: hiding error box');
     document.getElementById('error-box').style.display='none';
+    console.log('STEP 3: showScreen loading');
     showScreen('screen-loading');
+    console.log('STEP 4: back btn');
     document.getElementById('back-btn').classList.remove('visible');
+    console.log('STEP 5: scrollTo');
     window.scrollTo(0,0);
-    ['step1','step2','step3','step4'].forEach((s,i)=>setTimeout(()=>document.getElementById(s)?.classList.add('visible'),i*900));
+    console.log('STEP 6: done pre-try');
     try{
       const promptText = topics[currentTopic].prompt({age,salary,goal,amount,priority:selectedPriority});
 
