@@ -617,7 +617,6 @@
             const event = JSON.parse(raw);
             if(event.chunk){
               streamedText += event.chunk;
-              // Progressive render disabled — renderResults handles full render on done
             }
             if(event.searching && statusEl) statusEl.textContent='Searching for live rates...';
             if(event.error) throw new Error(event.error);
