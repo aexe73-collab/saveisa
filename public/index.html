@@ -419,22 +419,30 @@
     window.scrollTo(0,0);
     ['step1','step2','step3','step4'].forEach((s,i)=>setTimeout(()=>document.getElementById(s).classList.add('visible'),i*900));
     try{
-      const res=await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:topics[currentTopic].prompt({age,salary,goal,amount})}]})});
+      const res=await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1500,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:topics[currentTopic].prompt({age,salary,goal,amount})}]})});
       const result=await res.json();
-      if(!res.ok)throw new Error(result.error?.message||'API error');
+      if(!res.ok){
+        console.error('API error response:', JSON.stringify(result));
+        throw new Error(result.error?.message||'API error: '+res.status);
+      }
+      console.log('API response:', JSON.stringify(result).slice(0,300));
       const raw=result.content.filter(b=>b.type==='text').map(b=>b.text).join('');
-      const data=JSON.parse(raw.replace(/```json|```/g,'').trim());
+      console.log('Raw text:', raw.slice(0,300));
+      const cleaned=raw.replace(/```json|```/g,'').trim();
+      const data=JSON.parse(cleaned);
       renderResults(data);
       document.getElementById('results-title').textContent=topics[currentTopic].resultsTitle;
       showScreen('screen-results');
       document.getElementById('back-btn').classList.add('visible');
       window.scrollTo(0,0);
     }catch(e){
+      console.error('Submit error:', e.message, e.stack);
       const eb=document.getElementById('error-box');
-      eb.textContent='Something went wrong — please try again.';
+      eb.textContent='Error: '+e.message;
       eb.style.display='block';
       showScreen('screen-form');
       document.getElementById('back-btn').classList.add('visible');
+      updateMemoryBar(currentTopic);
     }
   }
 
