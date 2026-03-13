@@ -636,6 +636,17 @@
           }catch(e){ if(e.message && !e.message.includes('JSON')) throw e; }
         }
       }
+      // Fallback: if event.done never fired, render now with whatever we have
+      if(streamedText && !document.getElementById('results-content')?.querySelector('.provider-card, .card')){
+        console.log('Fallback render, streamedText length:', streamedText.length);
+        try{
+          const parsed = parseJSON(streamedText);
+          renderResults(parsed);
+        }catch(e){
+          console.error('Fallback parse failed:', e.message, 'raw:', streamedText.slice(0,300));
+          document.getElementById('results-content').innerHTML='<p style="color:var(--text-secondary);padding:1rem">Error: '+e.message+'</p>';
+        }
+      }
     }catch(e){
       console.error('Submit error:', e.message, e.stack);
       const eb=document.getElementById('error-box');
