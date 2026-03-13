@@ -765,13 +765,19 @@
 
   function renderResults(data){
     console.log('renderResults data:', JSON.stringify(data));
-    let html=buildWhatToLookFor(data.what_to_look_for);
+    // what_is_it intro card
+    let html = '';
+    if(data.what_is_it){
+      html += '<div class="card" style="border-left:3px solid var(--wit-border);border-radius:0 var(--border-radius-lg) var(--border-radius-lg) 0;padding-left:1.1rem;margin-bottom:1rem;">'
+        + '<p class="card-text">' + data.what_is_it + '</p></div>';
+    }
+    html += buildWhatToLookFor(data.what_to_look_for);
     html+=`<span class="section-results-label">${infoOnlyTopics.has(currentTopic)?"Your breakdown":"Top picks right now"}</span>`;
     data.top_picks.forEach((p,i)=>{
       const top=i===0;
       const url=getLink(p.name, p.url);
       if(!url){
-        html+=`<div class="card" style="margin-bottom:0.875rem;border-left:3px solid var(--wit-border);border-radius:0 var(--border-radius-lg) var(--border-radius-lg) 0;padding-left:1.1rem;"><div class="provider-row" style="margin-bottom:${p.desc?'0.5rem':'0'}"><span class="provider-name">${p.name}</span>${p.rate?`<span class="provider-rate" style="font-size:22px;">${p.rate}</span>`:''}</div>${p.desc?`<p class="card-text" style="font-size:13px;">${p.desc}</p>`:''}</div>`;
+        html+=`<div class="provider-card ${top?'top':''}" style="border-left:none;">`+(top?'<div class="provider-top-badge">Best match</div>':'')+`<div class="provider-body"><div class="provider-row" style="margin-bottom:${p.desc?'0.5rem':'0'}"><span class="provider-name">${p.name}</span>${p.rate?`<span class="provider-rate">${p.rate}</span>`:''}</div>${p.desc?`<p class="provider-desc">${p.desc}</p>`:''}</div></div>`;
       } else {
         html+=`<div class="provider-card ${top?'top':''}">`+(top?'<div class="provider-top-badge">Best match</div>':'')+`<div class="provider-body"><div class="provider-row"><span class="provider-name">${p.name}</span>${p.rate?`<span class="provider-rate">${p.rate}</span>`:''}</div><p class="provider-desc">${p.desc}</p><a class="provider-btn ${top?'':'outline'}" href="${url}" target="_blank" rel="noopener noreferrer sponsored">Open account →</a></div></div>`;
       }
