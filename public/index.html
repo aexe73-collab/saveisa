@@ -168,6 +168,15 @@
     .memory-btn:hover{background:var(--bg-card);}
     .memory-btn.primary{background:var(--submit-bg);color:var(--submit-color);border-color:transparent;}
     .memory-btn.primary:hover{opacity:0.88;}
+    .install-btn{display:none;align-items:center;gap:0.4rem;background:none;border:1.5px solid var(--border-mid);color:var(--text-secondary);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:5px 12px;border-radius:100px;cursor:pointer;transition:all 0.2s;}
+    .install-btn:hover{border-color:var(--green-light);color:var(--text-primary);}
+    .install-btn.visible{display:flex;}
+    .install-toast{display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg-card);border:1px solid var(--border-mid);border-radius:14px;padding:1rem 1.25rem;width:calc(100% - 2rem);max-width:380px;z-index:1000;box-shadow:0 8px 32px rgba(0,0,0,0.3);}
+    .install-toast.visible{display:block;}
+    .install-toast-title{font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:0.5rem;}
+    .install-toast-step{font-size:13px;color:var(--text-secondary);line-height:1.7;display:flex;gap:0.5rem;align-items:flex-start;}
+    .install-toast-step span{flex-shrink:0;color:var(--green-light);font-weight:600;}
+    .install-toast-close{width:100%;margin-top:0.85rem;padding:0.5rem;background:var(--expand-bg);border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-secondary);cursor:pointer;}
     .restart-btn{width:100%;background:none;border:1.5px solid var(--border-mid);color:var(--green-dark);padding:0.85rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;margin-top:1rem;transition:background 0.2s;}
     .restart-btn:hover{background:var(--expand-bg);}
 
@@ -187,6 +196,10 @@
       <button class="back-btn" id="back-btn" onclick="goBack()">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Back
+      </button>
+      <button class="install-btn" id="install-btn" onclick="triggerInstall()">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 2v7M4 6l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Install
       </button>
       <button class="toggle-btn" onclick="toggleDark()" aria-label="Toggle dark mode"><div class="toggle-thumb"></div></button>
     </div>
@@ -336,6 +349,15 @@
     <div id="results-content"></div>
     <div class="disclaimer">Rates and information sourced from publicly available data and may change. Always verify directly with the provider before making any financial decision. SaveISA provides information, not financial advice.</div>
     <button class="restart-btn" onclick="restart()">Explore another topic</button>
+  </div>
+
+  <!-- INSTALL TOAST (iOS) -->
+  <div class="install-toast" id="install-toast">
+    <div class="install-toast-title">Add SaveISA to your home screen</div>
+    <div class="install-toast-step"><span>1.</span> Tap the <strong>Share</strong> button at the bottom of Safari</div>
+    <div class="install-toast-step" style="margin-top:0.3rem;"><span>2.</span> Scroll down and tap <strong>"Add to Home Screen"</strong></div>
+    <div class="install-toast-step" style="margin-top:0.3rem;"><span>3.</span> Tap <strong>"Add"</strong> — done!</div>
+    <button class="install-toast-close" onclick="closeInstallToast()">Got it</button>
   </div>
 
   <!-- FOOTER NAV -->
@@ -664,6 +686,52 @@
   // ---------------------------------------------------------------
   // SERVICE WORKER REGISTRATION
   // ---------------------------------------------------------------
+  // ---------------------------------------------------------------
+  // PWA INSTALL PROMPT
+  // ---------------------------------------------------------------
+  let deferredInstallPrompt = null;
+
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    document.getElementById('install-btn').classList.add('visible');
+  });
+
+  window.addEventListener('appinstalled', () => {
+    document.getElementById('install-btn').classList.remove('visible');
+    deferredInstallPrompt = null;
+  });
+
+  function triggerInstall(){
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    if(isStandalone) return; // already installed
+    if(deferredInstallPrompt){
+      // Chrome/Android — native prompt
+      deferredInstallPrompt.prompt();
+      deferredInstallPrompt.userChoice.then(() => {
+        deferredInstallPrompt = null;
+        document.getElementById('install-btn').classList.remove('visible');
+      });
+    } else if(isIOS){
+      // iOS Safari — show manual instructions
+      document.getElementById('install-toast').classList.add('visible');
+    }
+  }
+
+  function closeInstallToast(){
+    document.getElementById('install-toast').classList.remove('visible');
+  }
+
+  // Show install button on iOS since beforeinstallprompt never fires
+  (function(){
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    if(isIOS && !isStandalone){
+      document.getElementById('install-btn').classList.add('visible');
+    }
+  })();
+
   if('serviceWorker' in navigator){
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js')
