@@ -168,9 +168,9 @@
     .memory-btn:hover{background:var(--bg-card);}
     .memory-btn.primary{background:var(--submit-bg);color:var(--submit-color);border-color:transparent;}
     .memory-btn.primary:hover{opacity:0.88;}
-    .install-btn{display:none;align-items:center;gap:0.4rem;background:none;border:1.5px solid var(--border-mid);color:var(--text-secondary);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:5px 12px;border-radius:100px;cursor:pointer;transition:all 0.2s;}
+    .install-btn{display:flex;align-items:center;gap:0.4rem;background:none;border:1.5px solid var(--border-mid);color:var(--text-secondary);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:5px 12px;border-radius:100px;cursor:pointer;transition:all 0.2s;}
     .install-btn:hover{border-color:var(--green-light);color:var(--text-primary);}
-    .install-btn.visible{display:flex;}
+    .install-btn.hidden{display:none!important;}
     .install-toast{display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg-card);border:1px solid var(--border-mid);border-radius:14px;padding:1rem 1.25rem;width:calc(100% - 2rem);max-width:380px;z-index:1000;box-shadow:0 8px 32px rgba(0,0,0,0.3);}
     .install-toast.visible{display:block;}
     .install-toast-title{font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:0.5rem;}
@@ -694,11 +694,10 @@
   window.addEventListener('beforeinstallprompt', e => {
     e.preventDefault();
     deferredInstallPrompt = e;
-    document.getElementById('install-btn').classList.add('visible');
   });
 
   window.addEventListener('appinstalled', () => {
-    document.getElementById('install-btn').classList.remove('visible');
+    document.getElementById('install-btn').classList.add('hidden');
     deferredInstallPrompt = null;
   });
 
@@ -723,12 +722,12 @@
     document.getElementById('install-toast').classList.remove('visible');
   }
 
-  // Show install button on iOS since beforeinstallprompt never fires
+  // Hide install button if already running as installed PWA
   (function(){
-    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-    if(isIOS && !isStandalone){
-      document.getElementById('install-btn').classList.add('visible');
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true;
+    if(isStandalone){
+      document.getElementById('install-btn').classList.add('hidden');
     }
   })();
 
