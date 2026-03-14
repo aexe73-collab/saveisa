@@ -175,7 +175,7 @@
 <body>
 <div id="root" class="dark">
   <nav class="nav">
-    <a class="logo" href="#" id="nav-logo">Save<span>ISA</span></a>
+    <a class="logo" href="#" id="nav-logo" onclick="restart();return false;">Save<span>ISA</span></a>
     <div class="nav-right">
       <button class="back-btn" id="back-btn" onclick="goBack()">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -783,19 +783,89 @@
         + '<p class="card-text">' + data.what_is_it + '</p></div>';
     }
     html += buildWhatToLookFor(data.what_to_look_for);
-    html+=`<span class="section-results-label">${infoOnlyTopics.has(currentTopic)?"Your breakdown":"Top picks right now"}</span>`;
+    const sectionLabels = {
+      'payslip':'Your pay breakdown','student-loan':'Key facts for you',
+      'auto-enrolment':'Your pension picture','salary-sacrifice':'Your tax saving',
+      'on-track':'Your pension forecast','state-pension':'Your state pension',
+      'mortgage':'Your mortgage picture','emergency-fund':'Your fund target'
+    };
+    html+=`<span class="section-results-label">${sectionLabels[currentTopic]||'Top picks right now'}</span>`;
     data.top_picks.forEach((p,i)=>{
       const top=i===0;
       const url=getLink(p.name, p.url);
       if(!url){
-        html+=`<div class="provider-card ${top?'top':''}" style="border-left:none;">`+(top?'<div class="provider-top-badge">Best match</div>':'')+`<div class="provider-body"><div class="provider-row" style="margin-bottom:${p.desc?'0.5rem':'0'}"><span class="provider-name">${p.name}</span>${p.rate?`<span class="provider-rate">${p.rate}</span>`:''}</div>${p.desc?`<p class="provider-desc">${p.desc}</p>`:''}</div></div>`;
+        const showBadge = top && !infoOnlyTopics.has(currentTopic);
+        html+=`<div class="provider-card ${top?'top':''}" style="border-left:none;">`+(showBadge?'<div class="provider-top-badge">Best match</div>':'')+`<div class="provider-body"><div class="provider-row" style="margin-bottom:${p.desc?'0.5rem':'0'}"><span class="provider-name">${p.name}</span>${p.rate?`<span class="provider-rate">${p.rate}</span>`:''}</div>${p.desc?`<p class="provider-desc">${p.desc}</p>`:''}</div></div>`;
       } else {
         html+=`<div class="provider-card ${top?'top':''}">`+(top?'<div class="provider-top-badge">Best match</div>':'')+`<div class="provider-body"><div class="provider-row"><span class="provider-name">${p.name}</span>${p.rate?`<span class="provider-rate">${p.rate}</span>`:''}</div><p class="provider-desc">${p.desc}</p><a class="provider-btn ${top?'':'outline'}" href="${url}" target="_blank" rel="noopener noreferrer sponsored">Open account →</a></div></div>`;
       }
     });
-    if(data.more_picks?.length){
+    // Comparison table for provider topics
+    if(!infoOnlyTopics.has(currentTopic) && data.top_picks.length > 1){
+      const hasBadge = data.top_picks.some(p => getLink(p.name, p.url||''));
+      if(hasBadge){
+        html += '<div style="margin:1rem 0 0.5rem;">';
+        html += '<span class="section-results-label">Why this order?</span>';
+        html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:0.5rem;">';
+        html += '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
+        html += '<thead><tr style="border-bottom:1px solid var(--border);">';
+        html += '<th style="text-align:left;padding:0.6rem 0.85rem;color:var(--text-muted);font-weight:500;">Provider</th>';
+        html += '<th style="text-align:left;padding:0.6rem 0.5rem;color:var(--text-muted);font-weight:500;">Rate</th>';
+        html += '<th style="text-align:left;padding:0.6rem 0.85rem 0.6rem 0.5rem;color:var(--text-muted);font-weight:500;">Best for</th>';
+        html += '</tr></thead><tbody>';
+        data.top_picks.forEach((p, i) => {
+          const isTop = i === 0;
+          html += '<tr style="border-bottom:1px solid var(--border);' + (isTop ? 'background:var(--expand-bg);' : '') + '">';
+          html += '<td style="padding:0.6rem 0.85rem;color:var(--text-primary);font-weight:' + (isTop?'600':'400') + ';">' + p.name + (isTop ? ' ★' : '') + '</td>';
+          html += '<td style="padding:0.6rem 0.5rem;color:var(--green-light);font-weight:600;">' + (p.rate||'—') + '</td>';
+          html += '<td style="padding:0.6rem 0.85rem 0.6rem 0.5rem;color:var(--text-secondary);">' + (p.desc||'').split('.')[0] + '</td>';
+          html += '</tr>';
+        });
+        html += '</tbody></table></div></div>';
+      }
+    }
+    if(data.more_picks?.length && !infoOnlyTopics.has(currentTopic)){
       html+=`<button class="more-btn" id="more-btn" onclick="loadMore()"><div class="spinner"></div><span class="btn-label">Compare more options →</span></button>`;
       html+=`<div class="more-providers" id="more-providers"><span class="section-results-label">More options</span>${data.more_picks.map(p=>{const url=getLink(p.name,p.url);return`<div class="provider-card"><div class="provider-body"><div class="provider-row"><span class="provider-name">${p.name}</span>${p.rate?`<span class="provider-rate">${p.rate}</span>`:''}</div><p class="provider-desc">${p.desc}</p>${url?`<a class="provider-btn outline" href="${url}" target="_blank" rel="noopener noreferrer sponsored">Open account →</a>`:''}</div></div>`;}).join('')}<div class="market-link-wrap"><a href="${getLink('moneysupermarket','https://www.moneysupermarket.com')}" target="_blank" rel="noopener noreferrer" class="market-link">See the full market comparison on MoneySuperMarket →</a></div></div>`;
+    }
+    // Reference links for info topics
+    const refs = {
+      'student-loan': [
+        {label:'Student Loans Company — repaying your loan', url:'https://www.gov.uk/repaying-your-student-loan'},
+        {label:'MoneySavingExpert — student loan guide', url:'https://www.moneysavingexpert.com/students/student-loans-tuition-fees-explained/'}
+      ],
+      'payslip': [
+        {label:'HMRC — understanding your payslip', url:'https://www.gov.uk/payslips'},
+        {label:'MoneyHelper — income tax explained', url:'https://www.moneyhelper.org.uk/en/work/employment/income-tax-explained'}
+      ],
+      'auto-enrolment': [
+        {label:'The Pensions Regulator — auto-enrolment guide', url:'https://www.thepensionsregulator.gov.uk/en/workers/what-is-automatic-enrolment'},
+        {label:'MoneyHelper — workplace pensions', url:'https://www.moneyhelper.org.uk/en/pensions-and-retirement/auto-enrolment'}
+      ],
+      'state-pension': [
+        {label:'GOV.UK — check your State Pension forecast', url:'https://www.gov.uk/check-state-pension'},
+        {label:'Pension Tracing Service — find lost pensions', url:'https://www.gov.uk/find-pension-contact-details'}
+      ],
+      'salary-sacrifice': [
+        {label:'HMRC — salary sacrifice arrangements', url:'https://www.gov.uk/guidance/salary-sacrifice-and-the-effects-on-paye'},
+        {label:'MoneyHelper — salary sacrifice explained', url:'https://www.moneyhelper.org.uk/en/work/employment/salary-sacrifice'}
+      ],
+      'on-track': [
+        {label:'MoneyHelper — pension calculator', url:'https://www.moneyhelper.org.uk/en/pensions-and-retirement/pensions-basics/pension-calculator'},
+        {label:'PensionBee — pension calculator', url:'https://www.pensionbee.com/pension-calculator'}
+      ],
+      'mortgage': [
+        {label:'MoneyHelper — mortgage affordability calculator', url:'https://www.moneyhelper.org.uk/en/homes/buying-a-home/mortgage-affordability-calculator'},
+        {label:'GOV.UK — Help to Buy and shared ownership', url:'https://www.gov.uk/affordable-home-ownership-schemes'}
+      ]
+    };
+    if(refs[currentTopic]){
+      html += '<div style="margin-top:0.75rem;padding:0.85rem 1rem;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;">';
+      html += '<div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.6rem;">Useful references</div>';
+      refs[currentTopic].forEach(r => {
+        html += '<a href="' + r.url + '" target="_blank" rel="noopener noreferrer" style="display:block;font-size:13px;color:var(--green-light);text-decoration:none;padding:0.25rem 0;">→ ' + r.label + '</a>';
+      });
+      html += '</div>';
     }
     document.getElementById('results-content').innerHTML=html;
   }
