@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"/>
   <title>SaveISA — understand your money</title>
   <link rel="manifest" href="/manifest.json"/>
   <meta name="theme-color" content="#2a3d18"/>
@@ -49,7 +49,7 @@
     #root{background:var(--bg);min-height:100vh;display:flex;flex-direction:column;transition:background 0.3s;}
 
     /* NAV */
-    .nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border);background:var(--nav-bg);transition:background 0.3s,border-color 0.3s;}
+    .nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;padding-top:calc(1rem + env(safe-area-inset-top));border-bottom:1px solid var(--border);background:var(--nav-bg);transition:background 0.3s,border-color 0.3s;}
     .logo{font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:700;color:var(--text-primary);letter-spacing:-0.5px;text-decoration:none;}
     .logo span{color:var(--green-light);}
     .nav-right{display:flex;align-items:center;gap:0.75rem;}
@@ -61,7 +61,7 @@
     .dark .toggle-thumb{transform:translateX(20px);}
 
     /* SCREENS */
-    .screen{display:none;padding:1.75rem 1.25rem 1.5rem;max-width:720px;margin:0 auto;width:100%;flex:1;}
+    .screen{display:none;padding:1.75rem 1.25rem calc(5rem + env(safe-area-inset-bottom));max-width:720px;margin:0 auto;width:100%;flex:1;}
     .screen.active{display:block;}
     .screen-title{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(20px,5vw,26px);font-weight:700;color:var(--text-primary);margin-bottom:0.35rem;letter-spacing:-0.5px;line-height:1.2;}
     .screen-sub{font-size:15px;color:var(--text-secondary);line-height:1.55;margin-bottom:1.75rem;}
@@ -181,7 +181,7 @@
     .restart-btn:hover{background:var(--expand-bg);}
 
     /* FOOTER NAV */
-    .footer-nav{position:sticky;bottom:0;z-index:100;background:var(--footer-bg);border-top:1px solid var(--footer-border);display:flex;transition:background 0.3s,border-color 0.3s;}
+    .footer-nav{position:sticky;bottom:0;z-index:100;background:var(--footer-bg);border-top:1px solid var(--footer-border);display:flex;transition:background 0.3s,border-color 0.3s;padding-bottom:env(safe-area-inset-bottom);}
     .foot-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.6rem 0 0.5rem;gap:3px;cursor:pointer;text-decoration:none;transition:opacity 0.2s;}
     .foot-tab svg{color:var(--foot-inactive);transition:color 0.3s;}
     .foot-tab span{font-size:11px;font-weight:600;color:var(--foot-inactive);letter-spacing:0.3px;transition:color 0.3s;}
