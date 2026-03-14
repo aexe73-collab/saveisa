@@ -152,7 +152,7 @@
     @keyframes dots{0%,20%{content:'.';}40%{content:'..';}60%,100%{content:'...'}}
     .loading-dots::after{content:'...';animation:dots 1.2s steps(1,end) infinite;}
     .loading-dots{font-size:inherit;color:inherit;}
-    .memory-bar{display:none;align-items:center;justify-content:space-between;padding:0.6rem 1.25rem;background:var(--expand-bg);border-bottom:1px solid var(--border);font-size:13px;color:var(--text-secondary);}
+    .memory-bar{display:none;align-items:center;justify-content:flex-end;padding:0.5rem 0;margin-bottom:0.75rem;font-size:13px;gap:0.5rem;}
     .memory-bar.visible{display:flex;}
     .memory-bar-text{display:flex;align-items:center;gap:0.5rem;}
     .memory-dot{width:7px;height:7px;border-radius:50%;background:var(--green-dark);flex-shrink:0;}
@@ -185,14 +185,6 @@
     </div>
   </nav>
 
-
-  <!-- SESSION MEMORY BAR -->
-  <div class="memory-bar" id="memory-bar">
-    <div class="memory-actions">
-      <button class="memory-btn" onclick="clearMemory()">Reset</button>
-      <button class="memory-btn primary" onclick="reloadMemory()">Reload my details</button>
-    </div>
-  </div>
 
   <!-- SAVEISA TOPICS -->
   <div class="screen active" id="screen-topics">
@@ -301,6 +293,12 @@
 
   <!-- FORM -->
   <div class="screen" id="screen-form">
+    <div class="memory-bar" id="memory-bar">
+      <div class="memory-actions">
+        <button class="memory-btn" onclick="clearMemory()">Reset</button>
+        <button class="memory-btn primary" onclick="reloadMemory()">Reload my details</button>
+      </div>
+    </div>
     <div class="form-title" id="form-title"></div>
     <div class="what-is-it">
       <div class="wit-label">What is it?</div>
@@ -324,10 +322,10 @@
 
   <!-- RESULTS -->
   <div class="screen" id="screen-results">
-    <div style="margin-bottom:1.25rem;">
-      <div class="results-badge">Your personalised results</div>
-      <p class="screen-title" id="results-title"></p>
+    <div class="memory-bar visible" style="margin-bottom:1rem;border-radius:12px;">
+      <span style="font-size:12px;font-weight:500;color:var(--text-secondary);">Your personalised results</span>
     </div>
+    <p class="screen-title" id="results-title"></p>
     <div id="results-content"></div>
     <div class="disclaimer">Rates and information sourced from publicly available data and may change. Always verify directly with the provider before making any financial decision. SaveISA provides information, not financial advice.</div>
     <button class="restart-btn" onclick="restart()">Explore another topic</button>
@@ -387,7 +385,7 @@
     'emergency-fund':{title:'Emergency fund',sub:"Tell us about your situation and we'll calculate your exact target.",resultsTitle:'Your emergency fund target',fields:`<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 22"/></div><div class="form-group"><label class="form-label">Monthly take-home (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 1800"/></div></div><div class="form-group"><label class="form-label">Monthly essential costs — rent, bills, food (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-amount" placeholder="e.g. 1200"/></div><div class="form-group"><label class="form-label">How stable is your income?</label><select class="form-select" id="f-goal"><option value="">Select one</option><option value="Very stable — permanent job">Very stable — permanent job</option><option value="Fairly stable — fixed term contract">Fairly stable — fixed term contract</option><option value="Variable — freelance or part time">Variable — freelance or part time</option></select></div>`,prompt:d=>`Emergency fund: age ${d.age}, take-home £${d.salary}/mo, essential costs £${d.amount}/mo, income stability: ${d.goal}, priority: ${d.priority}. Recommend best easy-access savings accounts.`},
     'credit-cards':{title:'Credit cards',sub:"Tell us about your situation and we'll find the right first card for you.",resultsTitle:'Your credit card options',fields:`<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 22"/></div><div class="form-group"><label class="form-label">Annual salary (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 28000"/></div></div><input type="hidden" id="f-goal" value="general"/><div class="form-group"><label class="form-label">Do you have existing credit history?</label><select class="form-select" id="f-amount"><option value="">Select one</option><option value="No credit history yet">No credit history yet</option><option value="Limited — a few months">Limited — a few months</option><option value="Yes — 1 year or more">Yes — 1 year or more</option></select></div>`,prompt:d=>`Credit card: age ${d.age}, salary £${d.salary}/yr, credit history: ${d.amount}, priority: ${d.priority}. Search for best UK credit cards matching this priority.`},
     'personal-loans':{title:'Personal loans',sub:"Tell us what you need and we'll show you the honest picture.",resultsTitle:'Personal loans explained',fields:`<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 22"/></div><div class="form-group"><label class="form-label">Annual salary (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 28000"/></div></div><div class="form-group"><label class="form-label">How much do you need to borrow? (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-amount" placeholder="e.g. 3000"/></div><div class="form-group"><label class="form-label">What's the loan for?</label><select class="form-select" id="f-goal"><option value="">Select one</option><option value="Car">Car</option><option value="Home improvements">Home improvements</option><option value="Debt consolidation">Debt consolidation</option><option value="Holiday or wedding">Holiday or wedding</option><option value="Other">Other</option></select></div>`,prompt:d=>`Personal loan: age ${d.age}, salary £${d.salary}/yr, borrowing £${d.amount}, purpose: ${d.goal}, priority: ${d.priority}. Search for best UK personal loan rates.`},
-    'student-loan':{title:'Student loan',sub:"Tell us about your loan so we can explain what it really means for you.",resultsTitle:'Your student loan explained',fields:`<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 22"/></div><div class="form-group"><label class="form-label">Annual salary (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 28000"/></div></div><div class="form-group"><label class="form-label">When did you start university?</label><select class="form-select" id="f-goal"><option value="">Select one</option><option value="Plan 1">Before 2012 — repay 9% above £24,990/yr (Plan 1)</option><option value="Plan 2">2012 to 2023 — repay 9% above £27,295/yr (Plan 2)</option><option value="Plan 5">2023 or later — repay 9% above £25,000/yr (Plan 5)</option><option value="Not sure">Not sure which plan I am on</option></select></div><div class="form-group"><label class="form-label">Approximate total loan (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-amount" placeholder="e.g. 45000"/></div>`,prompt:d=>`Student loan: age ${d.age}, salary £${d.salary}/yr, plan: ${d.goal}, debt £${d.amount}. Explain monthly repayments, threshold, and whether they'll repay in full. Use 2024/25 figures.`},
+    'student-loan':{title:'Student loan',sub:"Tell us about your loan so we can explain what it really means for you.",resultsTitle:'Your student loan explained',fields:`<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 22"/></div><div class="form-group"><label class="form-label">Annual salary (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 28000"/></div></div><div class="form-row"><div class="form-group"><label class="form-label">Year you started uni</label><input class="form-input" type="number" inputmode="numeric" id="f-goal" placeholder="e.g. 2019" min="1990" max="2025"/></div><div class="form-group"><label class="form-label">Years of loans taken</label><input class="form-input" type="number" inputmode="numeric" id="f-amount" placeholder="e.g. 3" min="1" max="6"/></div></div><div class="form-group"><label class="form-label">Approximate total loan (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-extra" placeholder="e.g. 45000"/></div>`,prompt:d=>`Student loan: age ${d.age}, salary £${d.salary}/yr, started uni ${d.goal}, took loans for ${d.amount} years, total debt approx £${document.getElementById('f-extra')?.value||'unknown'}. Calculate correct plan (Plan 1 if before 2012, Plan 2 if 2012-2023, Plan 5 if 2024+), exact monthly repayment, threshold, and realistic repayment outlook. Use 2024/25 figures.`},
     'payslip':{title:'First payslip',sub:"Tell us about your job and we'll decode exactly what's happening to your money.",resultsTitle:'Your payslip decoded',fields:`<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 22"/></div><div class="form-group"><label class="form-label">Annual salary (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 28000"/></div></div><div class="form-group"><label class="form-label">Workplace pension?</label><select class="form-select" id="f-goal"><option value="">Select one</option><option value="Yes, I'm enrolled">Yes, I'm enrolled</option><option value="No, I opted out">No, I opted out</option><option value="Not sure">Not sure</option></select></div><div class="form-group"><label class="form-label">Student loan?</label><select class="form-select" id="f-amount"><option value="">Select one</option><option value="Yes — Plan 2">Yes — started uni 2012–2023 (Plan 2)</option><option value="Yes — Plan 5">Yes — started uni 2023 or later (Plan 5)</option><option value="Yes — Plan 1">Yes — started uni before 2012 (Plan 1)</option><option value="No student loan">No student loan</option></select></div>`,prompt:d=>`Payslip breakdown: salary £${d.salary}/yr, pension: ${d.goal}, student loan: ${d.amount}. Use 2024/25 UK tax rates. Show gross pay, total deductions itemised, and take-home pay.`},
     'mortgage':{title:'Mortgage basics',sub:"Tell us where you are and we'll give you an honest picture of what's possible.",resultsTitle:'Your mortgage picture',fields:`<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 25"/></div><div class="form-group"><label class="form-label">Annual salary (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 32000"/></div></div><div class="form-group"><label class="form-label">Deposit saved or saving (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-amount" placeholder="e.g. 15000"/></div><div class="form-group"><label class="form-label">Where are you in the process?</label><select class="form-select" id="f-goal"><option value="">Select one</option><option value="Just starting to think about it">Just starting to think about it</option><option value="Actively saving for a deposit">Actively saving for a deposit</option><option value="Ready to buy in the next year">Ready to buy in the next year</option></select></div>`,prompt:d=>`Mortgage: age ${d.age}, salary £${d.salary}/yr, deposit £${d.amount}, stage: ${d.goal}, priority: ${d.priority}. Search current UK mortgage rates and explain what they could borrow.`},
     'auto-enrolment':{title:'Auto-enrolment',sub:"Tell us about your job and we'll explain exactly what's happening to your pension.",resultsTitle:'Your auto-enrolment explained',fields:`<div class="form-row"><div class="form-group"><label class="form-label">Your age</label><input class="form-input" type="number" inputmode="numeric" id="f-age" placeholder="e.g. 22"/></div><div class="form-group"><label class="form-label">Annual salary (£)</label><input class="form-input" type="number" inputmode="numeric" id="f-salary" placeholder="e.g. 28000"/></div></div><div class="form-group"><label class="form-label">Are you currently enrolled?</label><select class="form-select" id="f-goal"><option value="">Select one</option><option value="Yes, I'm enrolled">Yes, I'm enrolled</option><option value="No, I opted out">No, I opted out</option><option value="I'm not sure">I'm not sure</option><option value="I'm self-employed">I'm self-employed</option></select></div><div class="form-group"><label class="form-label">Does your employer match contributions?</label><select class="form-select" id="f-amount"><option value="">Select one</option><option value="Yes — I know the match">Yes — I know the match</option><option value="Yes — not sure of the %">Yes — not sure of the %</option><option value="No">No</option><option value="Not sure">Not sure</option></select></div>`,prompt:d=>`Auto-enrolment: age ${d.age}, salary £${d.salary}/yr, enrolled: ${d.goal}, employer match: ${d.amount}. Explain their pension situation and what they should do.`},
@@ -751,25 +749,19 @@
   function buildWhatToLookFor(items){
     const validItems = (items||[]).filter(i=>i&&i.summary&&i.summary.trim().length>1);
     if(!validItems.length) return '';
-    const accent = isDark?'#a8e040':'#2d6a0f';
-    const bg = isDark?'#344a1e':'#ffffff';
-    const border = isDark?'#4a6632':'#d4e8b8';
-    const labelCol = isDark?'#7a9662':'#7a9662';
-    const titleCol = isDark?'#e8f5d0':'#1a2e0d';
-    const detailCol = isDark?'#a8c080':'#4a6632';
-    let html = '<div style="background:'+bg+';border:1px solid '+border+';border-radius:16px;margin-bottom:1rem;overflow:hidden;">';
-    html += '<div style="padding:0.75rem 1rem 0.5rem;display:flex;align-items:center;gap:0.5rem;border-bottom:1px solid '+border+';">';
-    html += '<span style="font-size:11px;font-weight:600;color:'+labelCol+';text-transform:uppercase;letter-spacing:1px;">What to look for</span>';
+    let html = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;margin-bottom:1rem;overflow:hidden;transition:background 0.3s,border-color 0.3s;">';
+    html += '<div style="padding:0.75rem 1rem 0.5rem;display:flex;align-items:center;gap:0.5rem;border-bottom:1px solid var(--border);">';
+    html += '<span style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">What to look for</span>';
     html += '</div>';
     validItems.forEach((item, i) => {
       const last = i === validItems.length - 1;
-      html += '<div style="padding:0.75rem 1rem;' + (last?'':('border-bottom:1px solid '+border+';')) + '">';
+      html += '<div style="padding:0.75rem 1rem;' + (last?'':('border-bottom:1px solid var(--border);')) + '">';
       html += '<div style="display:flex;align-items:flex-start;gap:0.5rem;margin-bottom:' + (item.detail&&item.detail.trim()!==item.summary.trim()?'0.3rem':'0') + ';">';
-      html += '<span style="color:'+accent+';font-size:14px;font-weight:700;flex-shrink:0;">✓</span>';
-      html += '<span style="font-size:14px;font-weight:500;color:'+titleCol+';">' + (item.summary||'') + '</span>';
+      html += '<span style="color:var(--green-light);font-size:14px;font-weight:700;flex-shrink:0;">✓</span>';
+      html += '<span style="font-size:14px;font-weight:500;color:var(--text-primary);">' + (item.summary||'') + '</span>';
       html += '</div>';
       if(item.detail && item.detail.trim() && item.detail.trim() !== item.summary.trim()) {
-        html += '<div style="font-size:13px;color:'+detailCol+';line-height:1.6;padding-left:1.4rem;">' + item.detail + '</div>';
+        html += '<div style="font-size:13px;color:var(--text-secondary);line-height:1.6;padding-left:1.4rem;">' + item.detail + '</div>';
       }
       html += '</div>';
     });
@@ -834,22 +826,24 @@
     const options = topicPriorities[topic]||[];
     if(!options.length){ wrap.style.display='none'; return; }
     wrap.style.display='block';
-    selectedPriority = options[0]; // default to first
-    // Use data-value attribute — no inline string escaping needed (Safari-safe)
-    wrap.innerHTML = '<span class="priority-label">What matters most to you?</span><div class="priority-chips" id="priority-chips-inner"></div>';
-    const inner = document.getElementById('priority-chips-inner');
+    selectedPriority = options[0];
+    const sel = document.createElement('div');
+    sel.className = 'form-group';
+    sel.innerHTML = '<label class="form-label">What matters most to you?</label>';
+    const select = document.createElement('select');
+    select.className = 'form-select';
+    select.id = 'priority-select';
     options.forEach((o, i) => {
-      const btn = document.createElement('button');
-      btn.className = 'priority-chip' + (i === 0 ? ' selected' : '');
-      btn.textContent = o;
-      btn.dataset.value = o;
-      btn.addEventListener('click', function(){
-        document.querySelectorAll('.priority-chip').forEach(c => c.classList.remove('selected'));
-        this.classList.add('selected');
-        selectedPriority = this.dataset.value;
-      });
-      inner.appendChild(btn);
+      const opt = document.createElement('option');
+      opt.value = o;
+      opt.textContent = o;
+      if(i === 0) opt.selected = true;
+      select.appendChild(opt);
     });
+    select.addEventListener('change', function(){ selectedPriority = this.value; });
+    sel.appendChild(select);
+    wrap.innerHTML = '';
+    wrap.appendChild(sel);
   }
 
   function selectPriority(btn, value){
@@ -997,12 +991,11 @@
       const amount = document.getElementById('f-amount');
       if(goal && d.goal) goal.value = d.goal;
       if(amount && d.amount) amount.value = d.amount;
-      // Restore priority chip selection
+      // Restore priority dropdown
       if(d.priority){
         selectedPriority = d.priority;
-        document.querySelectorAll('.priority-chip').forEach(c=>{
-          c.classList.toggle('selected', c.textContent.trim()===d.priority);
-        });
+        const ps = document.getElementById('priority-select');
+        if(ps) ps.value = d.priority;
       }
     }
 
