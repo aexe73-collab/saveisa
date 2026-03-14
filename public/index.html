@@ -419,6 +419,8 @@
     if(!age||!salary||(goalRequired&&!goal)){const e=document.getElementById('error-box');e.textContent='Please fill in all fields before continuing.';e.style.display='block';return;}
     console.log('STEP 1: saving memory');
     saveMemory(currentTopic,{age,salary,goal,amount,priority:selectedPriority});
+    // Fire-and-forget anonymous analytics
+    fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic:currentTopic,product:currentProduct,age,salary,priority:selectedPriority})}).catch(()=>{});
     console.log('STEP 2: hiding error box');
     document.getElementById('error-box').style.display='none';
     console.log('STEP 3: showScreen loading');
