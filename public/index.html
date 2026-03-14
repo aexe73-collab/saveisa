@@ -188,10 +188,6 @@
 
   <!-- SESSION MEMORY BAR -->
   <div class="memory-bar" id="memory-bar">
-    <div class="memory-bar-text">
-      <div class="memory-dot"></div>
-      <span id="memory-label">Your details saved for this session</span>
-    </div>
     <div class="memory-actions">
       <button class="memory-btn" onclick="clearMemory()">Reset</button>
       <button class="memory-btn primary" onclick="reloadMemory()">Reload my details</button>
@@ -961,10 +957,8 @@
     const keys = Object.keys(sessionMemory);
     if(keys.length === 0){ bar.classList.remove('visible'); return; }
     bar.classList.add('visible');
-    // Show which topic is active in context, list all saved topics
-    const savedNames = keys.map(k=>topics[k]?.title||k).join(', ');
     if(currentTopic && sessionMemory[currentTopic]){
-      label.textContent = `Saved: ${savedNames}`;
+      label.textContent = 'Your details saved for this session';
     } else if(currentTopic && !sessionMemory[currentTopic]){
       label.textContent = `Saved from this session: ${savedNames}`;
     } else {
