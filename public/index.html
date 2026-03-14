@@ -954,15 +954,16 @@
   function updateMemoryBar(topic){
     const bar = document.getElementById('memory-bar');
     const label = document.getElementById('memory-label');
+    if(!label){}
     const keys = Object.keys(sessionMemory);
     if(keys.length === 0){ bar.classList.remove('visible'); return; }
     bar.classList.add('visible');
     if(currentTopic && sessionMemory[currentTopic]){
-      label.textContent = 'Your details saved for this session';
+      if(label) label.textContent = 'Your details saved for this session';
     } else if(currentTopic && !sessionMemory[currentTopic]){
-      label.textContent = `Saved from this session: ${savedNames}`;
+      if(label) label.textContent = `Saved from this session: ${savedNames}`;
     } else {
-      label.textContent = `Saved: ${savedNames}`;
+      if(label) label.textContent = `Saved: ${savedNames}`;
     }
   }
 
@@ -1007,9 +1008,10 @@
 
     // Update bar label to confirm what was loaded
     const label = document.getElementById('memory-label');
+    if(!label){}
     if(label){
       const filled = sessionMemory[currentTopic] ? 'All details reloaded' : 'Age & salary reloaded from your session';
-      label.textContent = filled;
+      if(label) label.textContent = filled;
     }
   }
 
@@ -1021,8 +1023,9 @@
     });
     // Update label to show fields were cleared, memory still available
     const label = document.getElementById('memory-label');
+    if(!label){}
     if(label && sessionMemory[currentTopic]){
-      label.textContent = 'Fields cleared — reload your saved details any time';
+      if(label) label.textContent = 'Fields cleared — reload your saved details any time';
     }
   }
 
